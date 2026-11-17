@@ -249,7 +249,8 @@
             class="w-8 h-8 rounded-full bg-cream hover:bg-sand border border-stoneBorder flex items-center justify-center text-mutedInk hover:text-charcoal transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
           </button>
-          <div id="theme-popover" class="hidden absolute left-0 mt-2 w-48 p-3 rounded-2xl bg-paper border border-stoneBorder shadow-xl z-50 space-y-2.5">
+          <!-- FIXED: Aligned to the right side of the button -->
+          <div id="theme-popover" class="hidden absolute right-0 top-full mt-2 w-48 p-3 rounded-2xl bg-paper border border-stoneBorder shadow-2xl z-50 space-y-2.5">
             <div class="text-[10px] font-mono-code font-bold uppercase text-mutedInk">Palet Warna</div>
             <div class="flex items-center gap-2">
               <button type="button" onclick="applyTheme('neutral')" class="w-6 h-6 rounded-full bg-[#C86D51] ring-2 ring-offset-1 ring-stone-300" title="Warm Neutral"></button>
@@ -1620,6 +1621,7 @@
       document.documentElement.style.removeProperty("--accent-primary");
       document.getElementById("theme-popover").classList.add("hidden");
       saveState();
+      showToast(`Tema ${themeName} diterapkan`);
     }
 
     function applyCustomAccent(hex) {
@@ -1627,6 +1629,7 @@
       document.documentElement.style.setProperty("--accent-primary", hex);
       document.getElementById("theme-popover").classList.add("hidden");
       saveState();
+      showToast("Warna aksen kustom diterapkan");
     }
 
     function calculateGPAStats() {
