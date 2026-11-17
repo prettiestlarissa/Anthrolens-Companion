@@ -3,14 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="AnthroLens" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#FBCFE8" />
-  <link rel="apple-touch-icon" href="icon.png" />
-  <link rel="icon" type="image/png" href="icon.png" />
-  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22AnthroLens%20Companion%22%2C%22short_name%22%3A%22AnthroLens%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FBCFE8%22%2C%22theme_color%22%3A%22%23FBCFE8%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
   <title>AnthroLens Companion — Larissa (Antropologi Budaya UGM)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1123,59 +1115,46 @@
       }
     }
 
-    let isInitialSyncDone = false;
-    let isSyncingNow = false;
-
-    function saveState(skipCloud = false) {
+    function saveState() {
       try {
-        state._updatedAt = Date.now();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        if (!skipCloud) {
-          syncToFirebase();
-        }
+        syncToFirebase();
       } catch (e) {
         console.error("Gagal menyimpan state lokal:", e);
       }
     }
 
     async function syncToFirebase() {
-      if (!isInitialSyncDone) return;
       const dot = document.getElementById("sync-dot");
       const label = document.getElementById("sync-label");
       try {
         if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
         if (label) label.textContent = "Menyimpan...";
-        const res = await fetch(FIREBASE_DB_URL, {
+        await fetch(FIREBASE_DB_URL, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(state)
         });
-        if (!res.ok) throw new Error("Firebase write blocked: " + res.status);
         if (dot) dot.className = "w-2 h-2 rounded-full bg-sage";
         if (label) label.textContent = "Firebase Sync";
       } catch (e) {
         if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
-        if (label) label.textContent = "Offline / Rules Error";
+        if (label) label.textContent = "Offline Mode";
       }
     }
 
     async function syncFromFirebase(manualNotify = false) {
-      if (isSyncingNow) return;
-      isSyncingNow = true;
       const dot = document.getElementById("sync-dot");
       const label = document.getElementById("sync-label");
       try {
         if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
-        const res = await fetch(FIREBASE_DB_URL + "?t=" + Date.now());
-        if (!res.ok) throw new Error("Network/Rules error: " + res.status);
+        const res = await fetch(FIREBASE_DB_URL);
+        if (!res.ok) throw new Error("Network error");
         const remote = await res.json();
-        const localHasData = Boolean(localStorage.getItem(STORAGE_KEY));
-        const localTs = Number(state._updatedAt || 0);
-        const remoteTs = Number((remote && remote._updatedAt) || 0);
-
-        if (remote && remote.profile) {
-          if (!localHasData || manualNotify || remoteTs >= localTs || remoteTs === 0) {
-            const currentSidebar = state.ui.sidebarOpen;
+        
+        const localRaw = localStorage.getItem(STORAGE_KEY);
+        if (remote && remote.profile && remote.courses) {
+          if (!localRaw) {
             state = {
               ...defaultState,
               ...remote,
@@ -1184,32 +1163,37 @@
                 ...(remote.profile || {}),
                 avatar: { ...defaultState.profile.avatar, ...((remote.profile && remote.profile.avatar) || {}) }
               },
-              ui: { ...defaultState.ui, ...(remote.ui || {}), sidebarOpen: currentSidebar },
+              ui: { ...defaultState.ui, ...(remote.ui || {}) },
               kip: { ...defaultState.kip, ...(remote.kip || {}) }
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
             renderAll();
-            if (manualNotify) showToast("Data berhasil disinkronkan dari Firebase");
-          } else if (localTs > remoteTs) {
-            isInitialSyncDone = true;
-            await syncToFirebase();
-            if (manualNotify) showToast("Data terbaru dari perangkat ini diunggah ke Firebase");
+          } else if (manualNotify) {
+            state = {
+              ...defaultState,
+              ...remote,
+              profile: {
+                ...defaultState.profile,
+                ...(remote.profile || {}),
+                avatar: { ...defaultState.profile.avatar, ...((remote.profile && remote.profile.avatar) || {}) }
+              },
+              ui: { ...defaultState.ui, ...(remote.ui || {}) },
+              kip: { ...defaultState.kip, ...(remote.kip || {}) }
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            renderAll();
+            showToast("Data berhasil disinkronkan dari Firebase");
           }
-        } else if (localHasData || manualNotify) {
-          isInitialSyncDone = true;
+        } else if (manualNotify) {
           await syncToFirebase();
-          if (manualNotify) showToast("Data lokal diunggah ke Firebase");
+          showToast("Data lokal diunggah ke Firebase");
         }
-        isInitialSyncDone = true;
         if (dot) dot.className = "w-2 h-2 rounded-full bg-sage";
         if (label) label.textContent = "Firebase Sync";
       } catch (e) {
-        isInitialSyncDone = true;
         if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
-        if (label) label.textContent = "Offline / Rules Error";
-        if (manualNotify) showToast("Gagal terhubung ke Firebase (Cek Rules/Internet)");
-      } finally {
-        isSyncingNow = false;
+        if (label) label.textContent = "Offline Mode";
+        if (manualNotify) showToast("Gagal terhubung ke Firebase (Mode Offline)");
       }
     }
 
@@ -1364,7 +1348,6 @@
 
       const hairDepth = darkenHexColor(hair, 0.66);
 
-      // 1. BACK HAIR BASE (8 Variasi Rambut Cantik)
       let backHairSVG = "";
       if (style === "curtain_long") {
         backHairSVG = `
@@ -1409,24 +1392,20 @@
       } else if (style === "twin_braids") {
         backHairSVG = `
           <path d="M 34 48 C 34 24, 86 24, 86 48 C 86 62, 80 70, 60 70 C 40 70, 34 62, 34 48 Z" fill="${hairDepth}" />
-          <!-- Left Braid -->
           <path d="M 35 64 C 29 72, 29 80, 34 88 C 29 95, 30 103, 35 111 L 42 111 C 45 103, 45 95, 41 88 C 45 80, 44 72, 40 64 Z" fill="${hair}" />
           <path d="M 33 74 L 41 78 M 32 86 L 41 90 M 33 98 L 41 102" stroke="${hairDepth}" stroke-width="1.8" stroke-linecap="round" />
           <rect x="33" y="106" width="10" height="3.5" rx="1.5" fill="#F29CB0" />
-          <!-- Right Braid -->
           <path d="M 85 64 C 91 72, 91 80, 86 88 C 91 95, 90 103, 85 111 L 78 111 C 75 103, 75 95, 79 88 C 75 80, 76 72, 80 64 Z" fill="${hair}" />
           <path d="M 87 74 L 79 78 M 88 86 L 79 90 M 87 98 L 79 102" stroke="${hairDepth}" stroke-width="1.8" stroke-linecap="round" />
           <rect x="77" y="106" width="10" height="3.5" rx="1.5" fill="#F29CB0" />
         `;
       } else {
-        // Layered Short Bob
         backHairSVG = `
           <path d="M 30 48 C 25 63, 27 77, 36 83 C 44 87, 76 87, 84 83 C 93 77, 95 63, 90 48 C 86 24, 34 24, 30 48 Z" fill="${hairDepth}" />
           <path d="M 33 49 C 29 62, 31 74, 39 80 C 46 83, 74 83, 81 80 C 89 74, 91 62, 87 49 Z" fill="${hair}" />
         `;
       }
 
-      // 2. OUTFIT / CLOTHING MODELS
       let outfitSVG = "";
       if (outfitStyle === "almamater_ugm") {
         outfitSVG = `
@@ -1458,7 +1437,6 @@
           <path d="M 56 91 L 60 95 L 64 91 L 62 103 L 60 100 L 58 103 Z" fill="#E06D7B" />
         `;
       } else {
-        // Blouse Ribbon (Default)
         outfitSVG = `
           <path d="M 31 114 C 31 88, 44 78, 60 78 C 76 78, 89 88, 89 114 Z" fill="${shirt}" />
           <path d="M 49 78 Q 54 85 60 83 Q 66 85 71 78 L 67 77 L 60 82 L 53 77 Z" fill="#FAF8F5" />
@@ -1467,43 +1445,33 @@
         `;
       }
 
-      // 3. EXPRESSIONS (EYES & MOUTH)
       let eyesAndMouthSVG = "";
       if (expression === "sparkly_happy") {
         eyesAndMouthSVG = `
-          <!-- Sparkling Happy Eyes -->
           <path d="M 47.5 52.5 Q 51 48 54.5 52.5" fill="none" stroke="#2B2927" stroke-width="2.2" stroke-linecap="round" />
           <path d="M 65.5 52.5 Q 69 48 72.5 52.5" fill="none" stroke="#2B2927" stroke-width="2.2" stroke-linecap="round" />
           <path d="M 46.5 51 L 48 52 M 73.5 51 L 72 52" stroke="#2B2927" stroke-width="1.4" stroke-linecap="round" />
-          <!-- Cute Open Smile -->
           <path d="M 55.5 60.5 Q 60 67.5 64.5 60.5 Z" fill="#E37B84" stroke="#2B2927" stroke-width="1.5" stroke-linejoin="round" />
-          <!-- Sparkles -->
           <path d="M 82 40 L 83.2 42.8 L 86 44 L 83.2 45.2 L 82 48 L 80.8 45.2 L 78 44 L 80.8 42.8 Z" fill="#F2B84B" />
         `;
       } else if (expression === "playful_wink") {
         eyesAndMouthSVG = `
-          <!-- Left Open Eye with Eyelash -->
           <ellipse cx="51" cy="52" rx="2.5" ry="2.8" fill="#2B2927" />
           <path d="M 47.5 50.2 L 49 51.2" stroke="#2B2927" stroke-width="1.5" stroke-linecap="round" />
           <circle cx="51.9" cy="51" r="1" fill="#FFFFFF" />
-          <!-- Right Wink -->
           <path d="M 65.5 52.2 Q 69 49.2 72.5 52.5" fill="none" stroke="#2B2927" stroke-width="2.1" stroke-linecap="round" />
-          <!-- Cat/Sweet Smile -->
           <path d="M 56 61 Q 60 65 64 61" fill="none" stroke="#2B2927" stroke-width="1.9" stroke-linecap="round" />
         `;
       } else if (expression === "calm_focus") {
         eyesAndMouthSVG = `
-          <!-- Calm Focused Eyes -->
           <ellipse cx="51" cy="52.3" rx="2.4" ry="2.5" fill="#2B2927" />
           <ellipse cx="69" cy="52.3" rx="2.4" ry="2.5" fill="#2B2927" />
           <path d="M 47.5 50.3 L 54.2 50.6 M 72.5 50.3 L 65.8 50.6" stroke="#2B2927" stroke-width="1.6" stroke-linecap="round" />
           <circle cx="51.8" cy="51.4" r="0.9" fill="#FFFFFF" />
           <circle cx="69.8" cy="51.4" r="0.9" fill="#FFFFFF" />
-          <!-- Gentle Poised Smile -->
           <path d="M 56.8 61.5 Q 60 63.6 63.2 61.5" fill="none" stroke="#2B2927" stroke-width="1.8" stroke-linecap="round" />
         `;
       } else {
-        // Sweet Smile (Default)
         eyesAndMouthSVG = `
           <ellipse cx="51" cy="52" rx="2.5" ry="2.8" fill="#2B2927" />
           <ellipse cx="69" cy="52" rx="2.5" ry="2.8" fill="#2B2927" />
@@ -1516,7 +1484,6 @@
         `;
       }
 
-      // 4. FRONT HAIR
       let frontHairSVG = "";
       if (style === "wavy_side") {
         frontHairSVG = `
@@ -1569,12 +1536,9 @@
           ${backHairSVG}
           <rect x="54.5" y="66" width="11" height="14" rx="5" fill="#F2C49E" />
           ${outfitSVG}
-          <!-- Delicate Face Contour -->
           <path d="M 41 49 C 41 36, 79 36, 79 49 C 79 63, 70 72.5, 60 72.5 C 50 72.5, 41 63, 41 49 Z" fill="#FCE0C8" />
-          <!-- Soft Eyebrows -->
           <path d="M 47 46 Q 51 44.5 55 46.2" fill="none" stroke="${hair}" stroke-width="1.35" stroke-linecap="round" opacity="0.75" />
           <path d="M 65 46.2 Q 69 44.5 73 46" fill="none" stroke="${hair}" stroke-width="1.35" stroke-linecap="round" opacity="0.75" />
-          <!-- Rosy Blush -->
           <ellipse cx="45.2" cy="56.8" rx="3.6" ry="2" fill="#F0948D" opacity="0.55" />
           <ellipse cx="74.8" cy="56.8" rx="3.6" ry="2" fill="#F0948D" opacity="0.55" />
           <circle cx="44.2" cy="56.4" r="0.6" fill="#FFFFFF" opacity="0.7" />
@@ -1594,7 +1558,7 @@
       const next = typeof forceState === "boolean" ? forceState : !state.ui.sidebarOpen;
       state.ui.sidebarOpen = next;
       applySidebarState();
-      saveState(true);
+      saveState();
     }
 
     function applySidebarState() {
@@ -1652,7 +1616,7 @@
       if (window.innerWidth < 1024 && state.ui.sidebarOpen) {
         toggleSidebar(false);
       }
-      saveState(true);
+      saveState();
     }
 
     function toggleManageMode() {
@@ -1751,14 +1715,14 @@
       const doneTasks = allTasks.filter(t => t.done).length;
       const taskPct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
 
+      const totalBudget = Number(state.kip.totalBudget || state.kip.pockets.reduce((s, p) => s + Number(p.allocated || 0), 0) || 4200000);
       const totalSpent = state.kip.pockets.reduce((s, p) => s + Number(p.allocated || 0), 0);
-      const totalBudget = Number(state.kip.totalBudget || 4200000);
-      const kipSpentPct = Math.min(100, Math.round((totalSpent / totalBudget) * 100));
+      const kipSpentPct = totalBudget > 0 ? Math.min(100, Math.round((totalSpent / totalBudget) * 100)) : 0;
 
       const widgets = [
         { id: "w-ipk", label: "IPK Kumulatif", value: ipk, sub: "Syarat KIP-K: Min 3.00", pct: Math.min(100, (parseFloat(ipk) / 4) * 100), color: "#4B7361" },
         { id: "w-tasks", label: "Progres Tugas", value: `${doneTasks}/${allTasks.length}`, sub: `${taskPct}% Selesai`, pct: taskPct, color: "#7E8CE0" },
-        { id: "w-wallet", label: "Alokasi Pos KIP", value: `Rp ${(totalSpent / 1000).toFixed(0)}k`, sub: `Dari Total Rp ${(totalBudget / 1000).toFixed(0)}k`, pct: kipSpentPct, color: "#D4A338" }
+        { id: "w-wallet", label: "Total KIP-K", value: `Rp ${(totalBudget / 1000000).toFixed(1)}jt`, sub: `Alokasi Pos: Rp ${(totalSpent / 1000).toFixed(0)}k`, pct: kipSpentPct, color: "#D4A338" }
       ];
 
       document.getElementById("dashboard-widget-toggles").innerHTML = widgets.map(w => {
@@ -1801,7 +1765,6 @@
         </div>
       `).join("");
 
-      // Combine upcoming agenda + undone tasks
       const upcomingAgendas = state.agendas.filter(a => !a.done).map(ag => ({ title: ag.title, date: ag.date, type: 'Agenda' }));
       const upcomingTasks = state.courses.flatMap(c => c.tasks.filter(t => !t.done).map(t => ({ title: `${c.code}: ${t.title}`, date: t.due, type: 'Tugas' })));
       const combinedUpcoming = [...upcomingAgendas, ...upcomingTasks].slice(0, 4);
@@ -2130,8 +2093,8 @@
 
     /* ==================== DANA KIP & EDITABLE POCKETS ==================== */
     function renderKipAndAttendance() {
-      const totalAllocated = state.kip.pockets.reduce((s, p) => s + Number(p.allocated || 0), 0);
-      document.getElementById("kip-monthly-total").textContent = `Rp ${totalAllocated.toLocaleString("id-ID")}`;
+      const totalBudget = Number(state.kip.totalBudget || 4200000);
+      document.getElementById("kip-monthly-total").textContent = `Rp ${totalBudget.toLocaleString("id-ID")}`;
 
       document.getElementById("kip-wallets-stack").innerHTML = state.kip.pockets.map(p => {
         return `
@@ -2141,7 +2104,7 @@
               <div class="font-mono-code text-lg font-extrabold">Rp ${Number(p.allocated).toLocaleString("id-ID")}</div>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" onclick="openEditPocketModal('${p.id}')" class="px-2.5 py-1 rounded-lg bg-white/20 text-white text-[10px] font-bold">Edit</button>
+              <button type="button" onclick="openEditPocketModal('${p.id}')" class="px-2.5 py-1 rounded-lg bg-white/20 text-white text-[10px] font-bold hover:bg-white/30 transition">Edit</button>
               <button type="button" onclick="deletePocket('${p.id}')" class="manage-only px-2 py-1 rounded-lg bg-black/30 text-white text-[10px] font-bold">Hapus</button>
             </div>
           </div>
@@ -3048,7 +3011,7 @@
         const today = new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
         state.logbook.unshift({
           id: "lg-" + Date.now(),
-          date: today,
+          date: data.category,
           category: data.category,
           desc: data.desc,
           points: data.points,
@@ -3431,16 +3394,6 @@
       renderDosenDraft();
       switchTab(state.ui.activeTab || "dashboard");
     }
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
-        syncFromFirebase(false);
-      }
-    });
-
-    window.addEventListener("focus", () => {
-      syncFromFirebase(false);
-    });
 
     window.addEventListener("DOMContentLoaded", () => {
       checkPinLockOnLoad();
