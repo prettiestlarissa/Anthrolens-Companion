@@ -1,0 +1,3408 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="neutral">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnthroLens Companion — Larissa (Antropologi Budaya UGM)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            cream: 'var(--bg-cream)',
+            paper: 'var(--bg-paper)',
+            sand: 'var(--bg-sand)',
+            charcoal: 'var(--text-charcoal)',
+            mutedInk: 'var(--text-muted)',
+            stoneBorder: 'var(--border-stone)',
+            terracotta: 'var(--accent-primary)',
+            terracottaDark: 'var(--accent-dark)',
+            sage: 'var(--accent-sage)',
+            sageLight: 'var(--accent-sage-light)',
+          },
+          boxShadow: {
+            bento: '0 4px 20px -2px rgba(28, 25, 23, 0.04), 0 1px 3px 0 rgba(28, 25, 23, 0.02)',
+            pill: '0 8px 24px -4px rgba(28, 25, 23, 0.12)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root, [data-theme="neutral"] {
+      --bg-cream: #FAF8F5;
+      --bg-paper: #FFFFFF;
+      --bg-sand: #F3EFEA;
+      --text-charcoal: #231F20;
+      --text-muted: #736B66;
+      --border-stone: #E7E1DA;
+      --accent-primary: #C86D51;
+      --accent-dark: #A9543A;
+      --accent-sage: #4B7361;
+      --accent-sage-light: #E8F0EC;
+    }
+    [data-theme="pink"] {
+      --bg-cream: #FDF7F8;
+      --bg-paper: #FFFFFF;
+      --bg-sand: #F8ECEE;
+      --text-charcoal: #2B1E22;
+      --text-muted: #7D646B;
+      --border-stone: #EDD8DD;
+      --accent-primary: #D46A84;
+      --accent-dark: #B54F68;
+      --accent-sage: #5E7D70;
+      --accent-sage-light: #EAF2EE;
+    }
+    [data-theme="sage"] {
+      --bg-cream: #F6F9F7;
+      --bg-paper: #FFFFFF;
+      --bg-sand: #EBF1ED;
+      --text-charcoal: #1D2923;
+      --text-muted: #5F7067;
+      --border-stone: #D8E3DC;
+      --accent-primary: #4A7C66;
+      --accent-dark: #37614E;
+      --accent-sage: #8C6D46;
+      --accent-sage-light: #F5EFE6;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      color: var(--text-charcoal);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+
+    .folder-card {
+      position: relative;
+      border-radius: 24px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .folder-card:hover {
+      transform: translateY(-2px);
+    }
+    .folder-tab {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 14px 14px 0 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: -1px;
+    }
+
+    .sticky-note {
+      position: relative;
+      border-radius: 20px;
+      transition: transform 0.2s ease;
+    }
+    .sticky-note:hover {
+      transform: translateY(-3px);
+    }
+    .washi-tape {
+      width: 68px;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.58);
+      border-left: 1px dashed rgba(0,0,0,0.1);
+      border-right: 1px dashed rgba(0,0,0,0.1);
+      margin: -22px auto 10px auto;
+      transform: rotate(-1.5deg);
+    }
+
+    .wallet-stack-item {
+      border-radius: 22px;
+      transition: transform 0.22s ease;
+    }
+    .wallet-stack-item + .wallet-stack-item {
+      margin-top: -14px;
+    }
+    .wallet-stack-item:hover {
+      transform: translateY(-6px);
+      z-index: 10;
+    }
+
+    body:not(.manage-mode) .manage-only {
+      display: none !important;
+    }
+
+    #sidebar-drawer {
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-stone); border-radius: 999px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @media print {
+      #sidebar-drawer, #collapsed-left-rail, #mobile-bottom-nav, #pin-lock-overlay, .no-print { display: none !important; }
+      body { background: #fff !important; }
+      main { max-width: 100% !important; padding: 0 !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex bg-cream text-charcoal selection:bg-terracotta/20">
+
+  <!-- 4-DIGIT PIN LOCK OVERLAY -->
+  <div id="pin-lock-overlay" class="hidden fixed inset-0 z-50 bg-cream/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-paper rounded-3xl border border-stoneBorder max-w-xs w-full p-6 shadow-2xl text-center space-y-4">
+      <div id="pin-avatar-slot" class="w-20 h-20 mx-auto rounded-3xl bg-cream border border-stoneBorder overflow-hidden"></div>
+      <div>
+        <span class="px-2.5 py-0.5 rounded-full bg-terracotta/10 text-terracotta font-mono-code text-[10px] font-bold">PRIVASI TERLINDUNGI</span>
+        <h2 id="pin-welcome-name" class="text-lg font-extrabold text-charcoal mt-1.5">Halo, Larissa</h2>
+        <p class="text-xs text-mutedInk">Masukkan 4-digit PIN akses untuk membuka data akademik & KIP-K</p>
+      </div>
+      <form onsubmit="verifyPinUnlock(event)" class="space-y-3">
+        <input type="password" id="pin-input-field" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required placeholder="••••"
+          class="w-full text-center tracking-[0.75em] font-mono-code text-2xl font-extrabold py-3 px-4 rounded-2xl bg-cream border border-stoneBorder focus:outline-none focus:border-terracotta" />
+        <div id="pin-error-msg" class="hidden text-[11px] font-bold text-red-600">PIN salah. Silakan coba lagi.</div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal hover:bg-terracotta text-white text-xs font-bold transition">
+          Buka Workspace
+        </button>
+      </form>
+      <div id="pin-hint-text-box" class="text-[10px] font-mono-code text-mutedInk">Default PIN: <span id="pin-hint-dynamic-val">2341</span> (Dapat diubah di Edit Profil)</div>
+    </div>
+  </div>
+
+  <!-- LEFT COLLAPSED CIRCULAR ICON SWITCHER & DOCKED MINI RAIL -->
+  <div id="collapsed-left-rail" class="fixed left-3 top-3.5 z-40 flex flex-col items-center gap-2 max-h-[calc(100vh-1.75rem)] transition-all duration-300 opacity-0 pointer-events-none -translate-x-4">
+    <button type="button" onclick="toggleSidebar(true)" title="Buka Menu Sidebar" aria-label="Buka Sidebar"
+      class="w-11 h-11 shrink-0 rounded-full bg-charcoal text-white shadow-pill flex items-center justify-center hover:bg-terracotta transition-all duration-200 ring-2 ring-paper">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h12M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="hidden sm:flex flex-col items-center gap-1 p-1.5 rounded-full bg-paper/95 backdrop-blur-md border border-stoneBorder shadow-pill overflow-y-auto no-scrollbar">
+      <button type="button" onclick="switchTab('dashboard')" data-rail="dashboard" title="Dashboard"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      </button>
+      <button type="button" onclick="switchTab('courses')" data-rail="courses" title="Matkul & Tugas (Sem 1-8)"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </button>
+      <button type="button" onclick="switchTab('notes')" data-rail="notes" title="Sticky Notes & Bacaan"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+      </button>
+      <button type="button" onclick="switchTab('activities')" data-rail="activities" title="UKM & Magang"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </button>
+      <button type="button" onclick="switchTab('kip')" data-rail="kip" title="Dana KIP & Absensi"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+      </button>
+      <button type="button" onclick="switchTab('calendar')" data-rail="calendar" title="Kalender & Jejak Agenda"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </button>
+      <button type="button" onclick="switchTab('logbook')" data-rail="logbook" title="Berkas & Logbook KIP-K"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </button>
+      <button type="button" onclick="switchTab('kalkulator')" data-rail="kalkulator" title="Kalkulator IPK & Target SKS"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      </button>
+      <button type="button" onclick="switchTab('dosen')" data-rail="dosen" title="Draft Pesan Dosen"
+        class="rail-btn w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-black/30 backdrop-blur-xs z-30 lg:hidden"></div>
+
+  <!-- LEFT SIDEBAR -->
+  <aside id="sidebar-drawer" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-[268px] shrink-0 bg-paper border-r border-stoneBorder flex flex-col justify-between p-4 overflow-y-auto">
+    <div class="space-y-4">
+      <div class="flex items-center gap-2.5">
+        <button type="button" onclick="toggleSidebar(false)" title="Tutup Sidebar" aria-label="Tutup Sidebar"
+          class="w-9 h-9 rounded-full bg-cream hover:bg-sand border border-stoneBorder flex items-center justify-center text-charcoal shrink-0 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div class="min-w-0 flex-1">
+          <div class="font-extrabold text-sm tracking-tight text-charcoal truncate">AnthroLens</div>
+          <div class="font-mono-code text-[10px] text-mutedInk truncate">FIB UGM • KIP-K</div>
+        </div>
+        <div class="relative">
+          <button type="button" onclick="toggleThemePopover()" title="Ubah Tema Warna"
+            class="w-8 h-8 rounded-full bg-cream hover:bg-sand border border-stoneBorder flex items-center justify-center text-mutedInk hover:text-charcoal transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+          </button>
+          <div id="theme-popover" class="hidden absolute left-0 mt-2 w-48 p-3 rounded-2xl bg-paper border border-stoneBorder shadow-xl z-50 space-y-2.5">
+            <div class="text-[10px] font-mono-code font-bold uppercase text-mutedInk">Palet Warna</div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="applyTheme('neutral')" class="w-6 h-6 rounded-full bg-[#C86D51] ring-2 ring-offset-1 ring-stone-300" title="Warm Neutral"></button>
+              <button type="button" onclick="applyTheme('pink')" class="w-6 h-6 rounded-full bg-[#D46A84] ring-2 ring-offset-1 ring-stone-300" title="Soft Rose"></button>
+              <button type="button" onclick="applyTheme('sage')" class="w-6 h-6 rounded-full bg-[#4A7C66] ring-2 ring-offset-1 ring-stone-300" title="Sage Green"></button>
+              <label class="w-6 h-6 rounded-full border border-stoneBorder flex items-center justify-center cursor-pointer overflow-hidden" title="Warna Kustom">
+                <input type="color" id="custom-accent-picker" onchange="applyCustomAccent(this.value)" class="opacity-0 w-0 h-0" />
+                <span class="text-[10px] font-bold">+</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-2xl bg-cream border border-stoneBorder flex items-center gap-3">
+        <div id="sidebar-avatar-slot" class="w-12 h-12 rounded-2xl bg-paper border border-stoneBorder flex items-center justify-center overflow-hidden shrink-0"></div>
+        <div class="min-w-0 flex-1">
+          <div id="sidebar-user-name" class="font-extrabold text-xs text-charcoal truncate">Larissa</div>
+          <div id="sidebar-user-nim" class="font-mono-code text-[10px] text-terracotta font-bold truncate">26/548921/SA/23410</div>
+          <div class="font-mono-code text-[10px] text-mutedInk truncate">Antropologi Budaya</div>
+        </div>
+      </div>
+
+      <nav class="space-y-1 text-xs font-bold">
+        <button type="button" onclick="switchTab('dashboard')" data-nav="dashboard" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-charcoal text-white transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" onclick="switchTab('courses')" data-nav="courses" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          <span>Matkul & Tugas (Sem 1–8)</span>
+        </button>
+        <button type="button" onclick="switchTab('notes')" data-nav="notes" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          <span>Sticky Notes & Bacaan</span>
+        </button>
+        <button type="button" onclick="switchTab('activities')" data-nav="activities" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>UKM, Organisasi & Magang</span>
+        </button>
+        <button type="button" onclick="switchTab('kip')" data-nav="kip" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          <span>Dana KIP & Absensi</span>
+        </button>
+        <button type="button" onclick="switchTab('calendar')" data-nav="calendar" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>Kalender & Jejak Agenda</span>
+        </button>
+        <button type="button" onclick="switchTab('logbook')" data-nav="logbook" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Berkas & Logbook KIP-K</span>
+        </button>
+        <button type="button" onclick="switchTab('kalkulator')" data-nav="kalkulator" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span>Kalkulator IPK & Target</span>
+        </button>
+        <button type="button" onclick="switchTab('dosen')" data-nav="dosen" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>Draft Pesan Dosen</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="pt-4 border-t border-stoneBorder space-y-2.5">
+      <button type="button" onclick="openProfileEditModal()" class="manage-only w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-terracotta/10 hover:bg-terracotta hover:text-white border border-terracotta/30 text-xs font-bold text-terracotta transition">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+        <span>Edit Profil, PIN & Avatar</span>
+      </button>
+
+      <div class="manage-only grid grid-cols-2 gap-1.5">
+        <button type="button" onclick="exportBackupJSON()" class="px-2.5 py-2 rounded-xl bg-cream hover:bg-sand border border-stoneBorder text-[11px] font-bold text-charcoal transition">
+          Backup JSON
+        </button>
+        <label class="px-2.5 py-2 rounded-xl bg-cream hover:bg-sand border border-stoneBorder text-[11px] font-bold text-charcoal text-center cursor-pointer transition">
+          <span>Restore</span>
+          <input type="file" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
+        </label>
+      </div>
+
+      <button type="button" onclick="confirmFreshStartReset()" class="manage-only w-full px-3 py-2 rounded-xl bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200 text-[11px] font-bold transition">
+        Reset Data Bawaan (Fresh Start)
+      </button>
+
+      <button type="button" id="manage-mode-btn" onclick="toggleManageMode()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-cream hover:bg-sand border border-stoneBorder text-xs font-bold text-charcoal transition">
+        <span class="flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-terracotta" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Mode Kelola</span>
+        </span>
+        <span id="manage-mode-pill" class="px-2 py-0.5 rounded-full bg-stone-200 text-mutedInk font-mono-code text-[10px]">OFF</span>
+      </button>
+
+      <div class="flex items-center justify-between px-2 text-[10px] font-mono-code text-mutedInk">
+        <span class="flex items-center gap-1.5">
+          <span id="sync-dot" class="w-2 h-2 rounded-full bg-sage"></span>
+          <span id="sync-label">Firebase Sync</span>
+        </span>
+        <button type="button" onclick="syncFromFirebase(true)" class="hover:text-charcoal underline">Sinkron</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WORKSPACE -->
+  <main id="main-workspace" class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full pb-28 lg:pb-16 transition-all duration-300">
+
+    <!-- ==================== TAB 1: DASHBOARD BENTO ==================== -->
+    <section id="tab-dashboard" class="tab-panel space-y-6">
+      <!-- Profile Header -->
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 sm:p-6 shadow-bento">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+          <div id="dash-avatar-slot" class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-cream border-2 border-stoneBorder flex items-center justify-center overflow-hidden shrink-0"></div>
+          <div class="flex-1 min-w-0 space-y-2 w-full">
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-terracotta/10 text-terracotta font-mono-code text-[11px] font-bold">ANTROPOLOGI BUDAYA — FIB UGM</span>
+              <span id="dash-nim-badge" class="px-2.5 py-0.5 rounded-full bg-sand text-charcoal font-mono-code text-[11px] font-bold">NIM: 26/548921/SA/23410</span>
+            </div>
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3">
+              <div>
+                <h1 id="dash-user-name" class="text-2xl sm:text-3xl font-extrabold text-charcoal tracking-tight">Larissa</h1>
+                <p id="dash-stage-subtitle" class="text-xs text-mutedInk">Stage 1 • Semester Awal & Riset Etnografi</p>
+              </div>
+              <div class="w-full sm:max-w-xs mx-auto sm:mx-0">
+                <div class="flex justify-between text-[10px] font-mono-code text-mutedInk mb-1">
+                  <span id="dash-level-label">Level 2 • Etnografer Muda</span>
+                  <span id="dash-xp-label">420 / 600 XP</span>
+                </div>
+                <div class="w-full h-2 rounded-full bg-sand overflow-hidden">
+                  <div id="dash-xp-bar" class="h-full bg-terracotta rounded-full transition-all duration-300" style="width: 70%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-2 border-t border-stoneBorder/70">
+              <button type="button" onclick="switchTab('courses')" class="px-3.5 py-1.5 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition">
+                Tugas Kuliah
+              </button>
+              <button type="button" onclick="switchTab('notes')" class="px-3.5 py-1.5 rounded-xl bg-cream hover:bg-sand border border-stoneBorder text-charcoal text-xs font-bold transition">
+                Sticky Notes
+              </button>
+              <button type="button" onclick="switchTab('calendar')" class="px-3.5 py-1.5 rounded-xl bg-cream hover:bg-sand border border-stoneBorder text-charcoal text-xs font-bold transition">
+                Kalender Agenda
+              </button>
+              <button type="button" onclick="openPomodoroModal()" class="px-3.5 py-1.5 rounded-xl bg-sage hover:opacity-90 text-white text-xs font-bold transition">
+                Pomodoro Fokus
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="manage-only bg-amber-50/80 border border-amber-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span class="font-bold text-amber-900">Mode Kelola Aktif: Atur kartu statistik yang tampil di Dashboard.</span>
+        <div id="dashboard-widget-toggles" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- Bento Stat Cards Grid (Uniform 3 Flexible Cards) -->
+      <div id="dashboard-stats-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+
+      <!-- Activity Chart & Upcoming Agenda Split -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-extrabold text-charcoal">Aktivitas Akademik & Riset Mingguan</h2>
+              <p class="text-xs text-mutedInk">Distribusi penyelesaian tugas, bacaan teori, dan log harian</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-sageLight text-sage font-mono-code text-[11px] font-bold">7 Hari Terakhir</span>
+          </div>
+          <div id="weekly-activity-chart" class="grid grid-cols-7 gap-2.5 items-end h-40 pt-4 px-1"></div>
+        </div>
+
+        <div class="lg:col-span-5 bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-extrabold text-charcoal">Tugas & Agenda Terdekat</h2>
+            <button type="button" onclick="switchTab('calendar')" class="text-xs font-bold text-terracotta hover:underline">Lihat Kalender</button>
+          </div>
+          <div id="dash-upcoming-list" class="space-y-2.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: MATA KULIAH & TUGAS ==================== -->
+    <section id="tab-courses" class="tab-panel hidden space-y-6">
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-charcoal">Arsip Mata Kuliah, Tugas & Transkrip IPK</h2>
+          <p class="text-xs text-mutedInk">Setiap tugas yang dicentang otomatis masuk ke Kalender & Logbook KIP-K</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="px-3.5 py-2 rounded-2xl bg-cream border border-stoneBorder min-w-[145px]">
+            <div class="flex items-center justify-between text-[10px] font-mono-code uppercase text-mutedInk">
+              <span>Progres Lulus</span>
+              <span id="course-sks-pct" class="font-bold text-terracotta">0%</span>
+            </div>
+            <div id="course-sks-display" class="font-mono-code text-sm font-extrabold text-charcoal mt-0.5">0 / 144 SKS</div>
+            <div class="w-full h-1.5 rounded-full bg-sand overflow-hidden mt-1">
+              <div id="course-sks-bar" class="h-full bg-terracotta rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="px-3.5 py-2 rounded-2xl bg-cream border border-stoneBorder text-right">
+            <span class="text-[10px] font-mono-code uppercase text-mutedInk block">IPS Semester Ini</span>
+            <span id="course-ips-display" class="font-mono-code text-lg font-extrabold text-charcoal">0.00</span>
+          </div>
+          <div class="px-3.5 py-2 rounded-2xl bg-sageLight border border-sage/20 text-right">
+            <span class="text-[10px] font-mono-code uppercase text-sage block">IPK Kumulatif</span>
+            <span id="course-ipk-display" class="font-mono-code text-lg font-extrabold text-sage">0.00</span>
+          </div>
+          <button type="button" onclick="openCourseModal()" class="px-4 py-2.5 rounded-xl bg-charcoal hover:bg-stone-800 text-white text-xs font-bold transition">
+            + Mata Kuliah
+          </button>
+        </div>
+      </div>
+
+      <div id="semester-switcher-bar" class="flex items-center gap-2 overflow-x-auto pb-1"></div>
+
+      <div id="courses-folder-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+    </section>
+
+    <!-- ==================== TAB 3: STICKY NOTES & READING LIST ==================== -->
+    <section id="tab-notes" class="tab-panel hidden space-y-6">
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-extrabold text-charcoal">Papan Sticky Notes & Fieldnotes</h2>
+            <p class="text-xs text-mutedInk">Catatan cepat kuliah, ide etnografi, dan poin diskusi teori</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <input type="text" id="notes-search-input" oninput="renderNotesAndReadings()" placeholder="Cari catatan..." class="px-3 py-2 rounded-xl bg-cream border border-stoneBorder text-xs focus:outline-none focus:border-terracotta" />
+            <button type="button" onclick="openStickyNoteModal()" class="px-4 py-2 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition">
+              + Sticky Note
+            </button>
+          </div>
+        </div>
+
+        <div id="sticky-notes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-2"></div>
+      </div>
+
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-extrabold text-charcoal">Daftar Bacaan & Referensi Antropologi</h3>
+            <p class="text-xs text-mutedInk">Katalog buku dan jurnal untuk makalah maupun skripsi</p>
+          </div>
+          <button type="button" onclick="openReadingModal()" class="px-4 py-2 rounded-xl bg-charcoal hover:bg-stone-800 text-white text-xs font-bold transition self-start">
+            + Referensi Bacaan
+          </button>
+        </div>
+        <div id="reading-list-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: UKM, ORGANISASI & MAGANG ==================== -->
+    <section id="tab-activities" class="tab-panel hidden space-y-6">
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-charcoal">UKM, Organisasi & Magang (Campus & Career Hub)</h2>
+          <p class="text-xs text-mutedInk">Kelola kepanitiaan, asisten riset, dan magang. Sinkronkan otomatis ke Logbook</p>
+        </div>
+        <button type="button" onclick="openActivityModal()" class="px-4 py-2.5 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition self-start">
+          + Tambah Aktivitas
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="bg-paper rounded-3xl border border-stoneBorder p-4 shadow-bento space-y-3">
+          <div class="flex items-center justify-between px-1">
+            <span class="font-extrabold text-sm text-charcoal">Tahap Daftar / Seleksi</span>
+            <span id="act-count-seleksi" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-mono-code text-xs font-bold">0</span>
+          </div>
+          <div id="act-col-seleksi" class="space-y-3"></div>
+        </div>
+
+        <div class="bg-paper rounded-3xl border border-stoneBorder p-4 shadow-bento space-y-3">
+          <div class="flex items-center justify-between px-1">
+            <span class="font-extrabold text-sm text-charcoal">Aktif Menjabat / Riset</span>
+            <span id="act-count-aktif" class="px-2 py-0.5 rounded-full bg-sageLight text-sage font-mono-code text-xs font-bold">0</span>
+          </div>
+          <div id="act-col-aktif" class="space-y-3"></div>
+        </div>
+
+        <div class="bg-paper rounded-3xl border border-stoneBorder p-4 shadow-bento space-y-3">
+          <div class="flex items-center justify-between px-1">
+            <span class="font-extrabold text-sm text-charcoal">Selesai (Portofolio)</span>
+            <span id="act-count-selesai" class="px-2 py-0.5 rounded-full bg-sand text-charcoal font-mono-code text-xs font-bold">0</span>
+          </div>
+          <div id="act-col-selesai" class="space-y-3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: DANA KIP & ABSENSI ==================== -->
+    <section id="tab-kip" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Flexible Editable KIP Pockets -->
+        <div class="lg:col-span-5 bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-extrabold text-charcoal">Pos Anggaran KIP-Kuliah</h2>
+              <p class="text-xs text-mutedInk">Total Anggaran: <span id="kip-monthly-total" class="font-mono-code font-bold text-charcoal">Rp 0</span></p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="openEditTotalBudgetModal()" class="px-2.5 py-1.5 rounded-xl bg-cream border border-stoneBorder text-xs font-bold text-charcoal" title="Ubah Total KIP">Atur Total</button>
+              <button type="button" onclick="openPocketModal()" class="px-3 py-1.5 rounded-xl bg-terracotta text-white text-xs font-bold">+ Pos</button>
+            </div>
+          </div>
+          <div id="kip-wallets-stack" class="pt-1"></div>
+        </div>
+
+        <!-- Slip Pengeluaran & Sinkron Logbook -->
+        <div class="lg:col-span-7 bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-extrabold text-charcoal">Slip Pengeluaran (Auto Logbook)</h3>
+              <p class="text-xs text-mutedInk">Catatan transaksi otomatis tersinkron sebagai bukti laporan KIP</p>
+            </div>
+            <button type="button" onclick="openExpenseModal()" class="px-3.5 py-2 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition">
+              + Catat Transaksi
+            </button>
+          </div>
+          <div id="kip-expenses-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <!-- Presensi 75% Guardrail -->
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-lg font-extrabold text-charcoal">Guardrail Presensi Kuliah (Minimal 75% UGM)</h3>
+            <p class="text-xs text-mutedInk">Pantau batas aman ketidakhadiran</p>
+          </div>
+          <button type="button" onclick="openAttendanceModal()" class="px-3.5 py-2 rounded-xl bg-charcoal text-white text-xs font-bold self-start">
+            + Matkul Presensi
+          </button>
+        </div>
+        <div id="attendance-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 6: KALENDER & JEJAK AGENDA ==================== -->
+    <section id="tab-calendar" class="tab-panel hidden space-y-6">
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-extrabold text-charcoal">Kalender Akademik, Jadwal & Todo Kampus</h2>
+            <p class="text-xs text-mutedInk">Klik tanggal pada kalender untuk memfilter atau menambahkan agenda/todo langsung</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="openLayerModal()" class="manage-only px-3 py-2 rounded-xl bg-cream border border-stoneBorder text-xs font-bold text-charcoal">
+              + Layer
+            </button>
+            <button type="button" onclick="openAgendaModal()" class="px-4 py-2 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition">
+              + Tambah Agenda / Todo
+            </button>
+          </div>
+        </div>
+
+        <div id="calendar-layers-bar" class="flex flex-wrap items-center gap-2"></div>
+
+        <!-- Visual Monthly Calendar Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-1">
+          <div class="lg:col-span-7 bg-cream rounded-3xl border border-stoneBorder p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <button type="button" onclick="changeCalendarMonth(-1)" class="w-8 h-8 rounded-full bg-paper border border-stoneBorder flex items-center justify-center text-charcoal hover:bg-sand transition" aria-label="Bulan Sebelumnya">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              <div class="text-center">
+                <div id="calendar-month-title" class="font-extrabold text-sm text-charcoal">November 2026</div>
+                <button type="button" onclick="resetCalendarSelection()" class="text-[10px] font-mono-code text-terracotta hover:underline">Tampilkan Semua Tanggal</button>
+              </div>
+              <button type="button" onclick="changeCalendarMonth(1)" class="w-8 h-8 rounded-full bg-paper border border-stoneBorder flex items-center justify-center text-charcoal hover:bg-sand transition" aria-label="Bulan Berikutnya">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-7 gap-1 text-center font-mono-code text-[10px] font-bold text-mutedInk pt-1">
+              <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+            </div>
+            <div id="calendar-month-grid" class="grid grid-cols-7 gap-1.5"></div>
+          </div>
+
+          <div class="lg:col-span-5 flex flex-col justify-between bg-cream rounded-3xl border border-stoneBorder p-4 space-y-3">
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <h3 id="calendar-selected-label" class="font-extrabold text-sm text-charcoal">Semua Jadwal & Todo Kampus</h3>
+                <span id="calendar-item-count" class="px-2 py-0.5 rounded-full bg-paper border border-stoneBorder font-mono-code text-[10px] font-bold text-charcoal">0</span>
+              </div>
+              <div id="calendar-agenda-list" class="space-y-2 max-h-80 overflow-y-auto pr-1"></div>
+            </div>
+
+            <form onsubmit="addQuickCampusTodo(event)" class="pt-2 border-t border-stoneBorder flex gap-1.5">
+              <input type="text" id="quick-todo-title" required placeholder="Tambah todo kampus cepat..." class="flex-1 px-3 py-2 rounded-xl bg-paper border border-stoneBorder text-xs focus:outline-none focus:border-terracotta" />
+              <button type="submit" class="px-3.5 py-2 rounded-xl bg-charcoal text-white text-xs font-bold shrink-0">+ Todo</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 7: BERKAS & LOGBOOK KIP-K ==================== -->
+    <section id="tab-logbook" class="tab-panel hidden space-y-6">
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-charcoal">Logbook & Pencapaian Laporan KIP-Kuliah</h2>
+            <p class="text-xs text-mutedInk">Log otomatis dari tugas yang selesai, slip pengeluaran, aktivitas organisasi, dan achievement aplikasi</p>
+          </div>
+          <div class="flex flex-wrap gap-2 no-print">
+            <button type="button" onclick="openLogbookModal()" class="px-3.5 py-2 rounded-xl bg-cream border border-stoneBorder text-xs font-bold text-charcoal">
+              + Entri Manual
+            </button>
+            <button type="button" onclick="exportLogbookCSV()" class="px-3.5 py-2 rounded-xl bg-sage text-white text-xs font-bold">
+              Ekspor CSV
+            </button>
+            <button type="button" onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-charcoal text-white text-xs font-bold">
+              Cetak PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-stoneBorder font-mono-code text-mutedInk">
+                <th class="py-2.5 px-3">Tanggal</th>
+                <th class="py-2.5 px-3">Kategori Laporan</th>
+                <th class="py-2.5 px-3">Uraian / Bukti Aktivitas</th>
+                <th class="py-2.5 px-3">Lampiran</th>
+                <th class="py-2.5 px-3">Poin / Nominal</th>
+                <th class="py-2.5 px-3 manage-only">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="logbook-tbody" class="divide-y divide-stoneBorder"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 8: KALKULATOR IPK & TARGET SKS ==================== -->
+    <section id="tab-kalkulator" class="tab-panel hidden space-y-6">
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <span class="px-2.5 py-0.5 rounded-full bg-terracotta/10 text-terracotta font-mono-code text-[10px] font-bold">SIMULATOR AKADEMIK UGM</span>
+          <h2 class="text-xl font-extrabold text-charcoal mt-1">Kalkulator Simulasi IPK & Proyeksi SKS</h2>
+          <p class="text-xs text-mutedInk">Simulasikan kombinasi nilai semester mendatang tanpa mengubah data transkrip asli</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="loadActualCoursesToSim()" class="px-3.5 py-2 rounded-xl bg-cream hover:bg-sand border border-stoneBorder text-xs font-bold text-charcoal transition">
+            Muat Matkul Belum Dinilai
+          </button>
+          <button type="button" onclick="addSimCourseRow()" class="px-3.5 py-2 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition">
+            + Tambah Baris Simulasi
+          </button>
+        </div>
+      </div>
+
+      <!-- Ringkasan Hasil Kalkulator -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-paper rounded-3xl border border-stoneBorder p-4 shadow-bento">
+          <div class="text-[11px] font-mono-code text-mutedInk">IPK SAAT INI (TRANSKRIP)</div>
+          <div id="calc-current-ipk" class="text-2xl font-extrabold text-charcoal mt-1 font-mono-code">0.00</div>
+          <div id="calc-current-sks" class="text-[11px] text-mutedInk mt-0.5">0 SKS Ternilai</div>
+        </div>
+        <div class="bg-paper rounded-3xl border border-stoneBorder p-4 shadow-bento">
+          <div class="text-[11px] font-mono-code text-mutedInk">IPS SIMULASI</div>
+          <div id="calc-sim-ips" class="text-2xl font-extrabold text-terracotta mt-1 font-mono-code">0.00</div>
+          <div id="calc-sim-sks" class="text-[11px] text-mutedInk mt-0.5">0 SKS Simulasi</div>
+        </div>
+        <div class="bg-sageLight rounded-3xl border border-sage/25 p-4 shadow-bento">
+          <div class="text-[11px] font-mono-code text-sage font-bold">PROYEKSI IPK AKHIR</div>
+          <div id="calc-projected-ipk" class="text-2xl font-extrabold text-sage mt-1 font-mono-code">0.00</div>
+          <div id="calc-projected-sks" class="text-[11px] text-sage/80 mt-0.5">Total 0 / 144 SKS</div>
+        </div>
+        <div class="bg-paper rounded-3xl border border-stoneBorder p-4 shadow-bento">
+          <div class="text-[11px] font-mono-code text-mutedInk">STATUS PREDIKAT / KIP-K</div>
+          <div id="calc-predikat-badge" class="text-base font-extrabold text-charcoal mt-1.5">Cum Laude Ready</div>
+          <div id="calc-sisa-sks" class="text-[11px] text-mutedInk mt-1">Sisa 144 SKS menuju lulus</div>
+        </div>
+      </div>
+
+      <!-- Tabel Simulasi & Kalkulator Target Minimal -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-8 bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-extrabold text-charcoal">Daftar Mata Kuliah Simulasi</h3>
+            <button type="button" onclick="resetSimRows()" class="text-xs font-bold text-mutedInk hover:text-red-600">Kosongkan</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-stoneBorder font-mono-code text-mutedInk">
+                  <th class="py-2 px-2">Nama Mata Kuliah / Rencana</th>
+                  <th class="py-2 px-2 w-24">SKS</th>
+                  <th class="py-2 px-2 w-28">Target Nilai</th>
+                  <th class="py-2 px-2 w-20 text-right">Bobot</th>
+                  <th class="py-2 px-2 w-12 text-center">Hapus</th>
+                </tr>
+              </thead>
+              <tbody id="calc-sim-tbody" class="divide-y divide-stoneBorder"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <h3 class="text-base font-extrabold text-charcoal">Hitung Target IPK Lulus</h3>
+            <p class="text-xs text-mutedInk">Cari tahu rata-rata IPS minimal yang dibutuhkan pada sisa SKS untuk mencapai target IPK impianmu.</p>
+            <div>
+              <label class="font-bold text-xs block mb-1">Target IPK Akhir (0.00 - 4.00)</label>
+              <input type="number" id="target-ipk-goal" step="0.01" min="2.00" max="4.00" value="3.75" oninput="calculateTargetIpsNeeded()"
+                class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code text-sm font-bold" />
+            </div>
+            <div>
+              <label class="font-bold text-xs block mb-1">Total SKS Kelulusan</label>
+              <input type="number" id="target-total-sks" min="120" max="160" value="144" oninput="calculateTargetIpsNeeded()"
+                class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code text-sm font-bold" />
+            </div>
+            <div id="target-ips-result-box" class="p-4 rounded-2xl bg-cream border border-stoneBorder space-y-1"></div>
+          </div>
+          <button type="button" onclick="saveSimPlanToLogbook()" class="w-full py-2.5 rounded-xl bg-charcoal hover:bg-stone-800 text-white text-xs font-bold transition">
+            Simpan Rencana Studi ke Logbook
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 9: GENERATOR DRAFT PESAN DOSEN ==================== -->
+    <section id="tab-dosen" class="tab-panel hidden space-y-6">
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="px-2.5 py-0.5 rounded-full bg-sageLight text-sage font-mono-code text-[10px] font-bold">ETIKA KOMUNIKASI AKADEMIK</span>
+          <h2 class="text-xl font-extrabold text-charcoal mt-1">Generator Draft Pesan & Email Dosen</h2>
+          <p class="text-xs text-mutedInk">Otomatis menyertakan identitas Nama, NIM, dan Prodi Antropologi Budaya FIB UGM sesuai etika akademik</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Form Konfigurasi Pesan -->
+        <div class="lg:col-span-6 bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-3.5 text-xs">
+          <div>
+            <label class="font-bold block mb-1">Keperluan / Jenis Pesan</label>
+            <select id="dosen-template-select" onchange="updateDosenDraftPreview()" class="w-full px-3 py-2.5 rounded-xl bg-cream border border-stoneBorder font-bold text-charcoal">
+              <option value="bimbingan_dpa">1. Permohonan Bimbingan Akademik / KRS (DPA)</option>
+              <option value="izin_kuliah">2. Izin Tidak Hadir Kuliah (Sakit / Tugas Riset)</option>
+              <option value="bimbingan_skripsi">3. Permohonan Bimbingan Skripsi / Proposal Etnografi</option>
+              <option value="kumpul_tugas">4. Konfirmasi Pengumpulan Tugas / Revisi Makalah</option>
+              <option value="izin_riset">5. Permohonan Izin Wawancara / Riset Lapangan</option>
+              <option value="rekomendasi">6. Permohonan Surat Rekomendasi Beasiswa / Magang</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold block mb-1">Salam Pembuka</label>
+              <select id="dosen-greeting-select" onchange="updateDosenDraftPreview()" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+                <option value="Assalamu'alaikum warahmatullahi wabarakatuh.">Assalamu'alaikum wr. wb.</option>
+                <option value="Selamat pagi, Bapak/Ibu.">Selamat pagi</option>
+                <option value="Selamat siang, Bapak/Ibu.">Selamat siang</option>
+                <option value="Selamat sore, Bapak/Ibu.">Selamat sore</option>
+              </select>
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Sapaan Dosen</label>
+              <select id="dosen-salutation-select" onchange="updateDosenDraftPreview()" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+                <option value="Bapak">Bapak</option>
+                <option value="Ibu">Ibu</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold block mb-1">Nama Dosen & Gelar</label>
+              <input type="text" id="dosen-name-input" oninput="updateDosenDraftPreview()" placeholder="Contoh: Dr. Budi Santoso, M.A."
+                class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+            </div>
+            <div>
+              <label class="font-bold block mb-1">Mata Kuliah / Topik</label>
+              <input type="text" id="dosen-course-input" oninput="updateDosenDraftPreview()" placeholder="Contoh: Pengantar Antropologi"
+                class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+            </div>
+          </div>
+
+          <div>
+            <label class="font-bold block mb-1">Waktu / Hari & Tanggal</label>
+            <input type="text" id="dosen-time-input" oninput="updateDosenDraftPreview()" placeholder="Contoh: Kamis, 20 November 2026 pukul 10.00 WIB"
+              class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+
+          <div>
+            <label class="font-bold block mb-1">Keterangan / Alasan Spesifik</label>
+            <textarea id="dosen-detail-input" rows="3" oninput="updateDosenDraftPreview()" placeholder="Tuliskan detail singkat (misal: kondisi kesehatan, judul topik etnografi, atau tautan berkas)..."
+              class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder"></textarea>
+          </div>
+        </div>
+
+        <!-- Live Preview & Aksi Salin -->
+        <div class="lg:col-span-6 bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-sm text-charcoal">Pratinjau Pesan Siap Kirim</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-cream border border-stoneBorder font-mono-code text-[10px] text-mutedInk">Dapat Diedit Langsung</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-cream border border-stoneBorder text-xs">
+              <span class="font-mono-code text-[10px] font-bold text-mutedInk block">SUBJEK EMAIL (OPSIONAL):</span>
+              <div id="dosen-subject-preview" class="font-bold text-charcoal mt-0.5">Permohonan Bimbingan Akademik — Larissa</div>
+            </div>
+            <textarea id="dosen-body-preview" rows="11"
+              class="w-full p-4 rounded-2xl bg-cream border border-stoneBorder text-xs leading-relaxed text-charcoal focus:outline-none focus:border-terracotta"></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <button type="button" onclick="copyDosenDraftText()" class="flex-1 py-2.5 px-4 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition">
+              Salin Pesan
+            </button>
+            <button type="button" onclick="openWhatsAppWithDraft()" class="py-2.5 px-4 rounded-xl bg-sage hover:opacity-90 text-white text-xs font-bold transition">
+              Buka WhatsApp
+            </button>
+            <button type="button" onclick="saveDosenDraftToHistory()" class="py-2.5 px-4 rounded-xl bg-charcoal hover:bg-stone-800 text-white text-xs font-bold transition">
+              Simpan Arsip
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Riwayat Arsip Draft Tersimpan -->
+      <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento space-y-3">
+        <h3 class="text-base font-extrabold text-charcoal">Arsip Draft Pesan Tersimpan</h3>
+        <div id="saved-dosen-drafts-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MOBILE BOTTOM NAVIGATION BAR (CLEAN 5-SLOT DOCK) -->
+  <nav id="mobile-bottom-nav" class="lg:hidden fixed bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-md z-30 bg-paper/95 backdrop-blur-xl border border-stoneBorder rounded-3xl shadow-[0_10px_30px_-5px_rgba(35,31,32,0.14)] p-1.5 grid grid-cols-5 items-center gap-1 no-print">
+    <button type="button" onclick="switchTab('dashboard')" data-mnav="dashboard" class="mnav-btn flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[10px] font-bold text-charcoal transition">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span>Home</span>
+    </button>
+    <button type="button" onclick="switchTab('courses')" data-mnav="courses" class="mnav-btn flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[10px] font-bold text-mutedInk transition">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      <span>Matkul</span>
+    </button>
+    <button type="button" onclick="switchTab('calendar')" data-mnav="calendar" class="mnav-btn flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[10px] font-bold text-mutedInk transition">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <span>Agenda</span>
+    </button>
+    <button type="button" onclick="switchTab('kip')" data-mnav="kip" class="mnav-btn flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[10px] font-bold text-mutedInk transition">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+      <span>KIP-K</span>
+    </button>
+    <button type="button" onclick="toggleSidebar(true)" data-mnav="more" class="mnav-btn flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[10px] font-bold text-mutedInk hover:text-charcoal transition">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      <span>Menu</span>
+    </button>
+  </nav>
+
+  <!-- UNIVERSAL MODAL -->
+  <div id="app-modal" class="hidden fixed inset-0 bg-black/45 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-paper rounded-3xl border border-stoneBorder max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-stoneBorder pb-3">
+        <h3 id="modal-title" class="text-base font-extrabold text-charcoal">Form Data</h3>
+        <button type="button" onclick="closeModal()" class="w-8 h-8 rounded-full bg-cream hover:bg-sand flex items-center justify-center text-charcoal">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form id="modal-form" onsubmit="handleModalSubmit(event)" class="space-y-3 text-xs"></form>
+    </div>
+  </div>
+
+  <!-- POMODORO TIMER MODAL -->
+  <div id="pomodoro-modal" class="hidden fixed inset-0 bg-black/45 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-paper rounded-3xl border border-stoneBorder max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+      <div class="flex items-center justify-between border-b border-stoneBorder pb-3">
+        <h3 class="text-base font-extrabold text-charcoal">Pomodoro Fokus Studi</h3>
+        <button type="button" onclick="closePomodoroModal()" class="w-8 h-8 rounded-full bg-cream hover:bg-sand flex items-center justify-center text-charcoal">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="pomo-status" class="font-mono-code text-xs font-bold text-terracotta">Sesi Fokus (25 Menit)</div>
+      <div id="pomo-display" class="font-mono-code text-4xl font-extrabold text-charcoal py-4 bg-cream rounded-2xl border border-stoneBorder">25:00</div>
+      <div class="flex gap-2 justify-center">
+        <button type="button" id="pomo-start-btn" onclick="togglePomodoroTimer()" class="px-5 py-2.5 rounded-xl bg-terracotta text-white font-bold text-xs">Mulai</button>
+        <button type="button" onclick="resetPomodoroTimer()" class="px-4 py-2.5 rounded-xl bg-cream border border-stoneBorder font-bold text-xs text-charcoal">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST MESSAGE BOX -->
+  <div id="toast-box" class="fixed bottom-5 right-5 bg-charcoal text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-lg transform translate-y-24 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-terracotta"></span>
+    <span id="toast-text">Tersimpan</span>
+  </div>
+
+  <script>
+    const FIREBASE_DB_URL = "https://anthrolenscompanion-default-rtdb.asia-southeast1.firebasedatabase.app/larissa_companion.json";
+    const STORAGE_KEY = "anthrolens_larissa_v6";
+    const SESSION_UNLOCK_KEY = "anthrolens_pin_unlocked";
+
+    const GRADE_POINTS = {
+      "A": 4.0, "A-": 3.75, "A/B": 3.5, "B+": 3.25, "B": 3.0,
+      "B-": 2.75, "B/C": 2.5, "C+": 2.25, "C": 2.0, "D": 1.0, "E": 0.0, "-": null
+    };
+
+    const FOLDER_PALETTES = [
+      { bg: "#EEF0FA", border: "#D5DAF2", tab: "#7E8CE0", text: "#23284D" },
+      { bg: "#FDECE8", border: "#F7CFC6", tab: "#E07A64", text: "#4A2219" },
+      { bg: "#ECF5EE", border: "#CDE3D2", tab: "#5D9C73", text: "#1B3B26" },
+      { bg: "#FDF6E4", border: "#F4E3B8", tab: "#D4A338", text: "#45330B" }
+    ];
+
+    const STICKY_COLORS = {
+      butter: { bg: "#FEF6D8", border: "#F2E2A4" },
+      rose: { bg: "#FDE8EE", border: "#F3C6D3" },
+      sage: { bg: "#E7F4EC", border: "#C4E2CF" },
+      sky: { bg: "#E8F2FC", border: "#C4DCF5" },
+      sand: { bg: "#F5EFE8", border: "#E3D7C8" }
+    };
+
+    const defaultState = {
+      profile: {
+        name: "Larissa",
+        nim: "26/548921/SA/23410",
+        stage: "Stage 1 • Semester Awal & Riset Etnografi",
+        pin: "2341",
+        pinEnabled: true,
+        showPinHint: true,
+        xp: 420,
+        theme: "neutral",
+        customAccent: "",
+        avatar: {
+          hairstyle: "curtain_long",
+          hairColor: "#2C221E",
+          outfitStyle: "blouse_ribbon",
+          outfitColor: "#C86D51",
+          expression: "sweet_smile",
+          hasCamera: true,
+          hasNotebook: true,
+          hasGlasses: false,
+          hasHairClip: true
+        }
+      },
+      ui: {
+        activeTab: "dashboard",
+        activeSemester: 1,
+        sidebarOpen: true,
+        manageMode: false,
+        hiddenWidgets: [],
+        calYear: 2026,
+        calMonth: 10,
+        selectedDate: ""
+      },
+      courses: [
+        {
+          id: "c1", semester: 1, code: "ANT-101", name: "Pengantar Antropologi", sks: 3, grade: "A", colorIdx: 0,
+          tasks: [
+            { id: "t1", title: "Resume Bab Kebudayaan Koentjaraningrat", due: "2026-11-19", done: true },
+            { id: "t2", title: "Observasi Ruang Publik Bulaksumur", due: "2026-11-23", done: false }
+          ]
+        },
+        {
+          id: "c2", semester: 1, code: "ANT-103", name: "Etnografi Nusantara", sks: 3, grade: "A-", colorIdx: 1,
+          tasks: [
+            { id: "t3", title: "Peta Sebaran Kekerabatan Matrilineal", due: "2026-11-25", done: false }
+          ]
+        },
+        {
+          id: "c3", semester: 1, code: "ANT-105", name: "Antropologi Visual & Media", sks: 2, grade: "A", colorIdx: 2,
+          tasks: [
+            { id: "t4", title: "Analisis Foto Etnografi Klasik", due: "2026-11-27", done: false }
+          ]
+        },
+        {
+          id: "c4", semester: 2, code: "ANT-201", name: "Teori Antropologi Klasik", sks: 3, grade: "-", colorIdx: 3,
+          tasks: [
+            { id: "t5", title: "Review Fungsionalisme Malinowski", due: "2026-12-10", done: false }
+          ]
+        }
+      ],
+      notes: [
+        {
+          id: "n1", courseCode: "ANT-101", tag: "Teori Dasar", color: "butter", pinned: true,
+          title: "Thick Description — Clifford Geertz",
+          content: "Etnografi bukan sekadar mencatat perilaku fisik, melainkan menafsirkan jaringan makna simbolik masyarakat."
+        },
+        {
+          id: "n2", courseCode: "ANT-105", tag: "Fieldnotes", color: "rose", pinned: true,
+          title: "Etika Kamera di Lapangan",
+          content: "Selalu dahulukan percakapan dan Informed Consent sebelum mengangkat kamera."
+        }
+      ],
+      readings: [
+        { id: "r1", title: "The Interpretation of Cultures", author: "Clifford Geertz", status: "Sedang Dibaca", quote: "Man is an animal suspended in webs of significance." }
+      ],
+      activities: [
+        { id: "a1", name: "UKM Kine Klub UGM", role: "Divisi Dokumenter", period: "2026 - Sekarang", status: "aktif", desc: "Produksi film dokumenter pendek sosial budaya." },
+        { id: "a2", name: "Asisten Riset Budaya", role: "Transkrip Lapangan", period: "Target Sem 3", status: "seleksi", desc: "Pemberkasan portofolio catatan lapangan." }
+      ],
+      kip: {
+        totalBudget: 4200000,
+        pockets: [
+          { id: "p1", name: "Kos & Kebutuhan Hidup", allocated: 2250000, color: "#4B7361" },
+          { id: "p2", name: "Kuota, Buku & Print", allocated: 900000, color: "#C86D51" },
+          { id: "p3", name: "Produksi Film & Riset", allocated: 600000, color: "#6E79B8" },
+          { id: "p4", name: "Dana Darurat", allocated: 450000, color: "#B88B3A" }
+        ],
+        expenses: [
+          { id: "e1", date: "15 Nov 2026", pocket: "Kuota, Buku & Print", note: "Fotokopi diktat Pengantar Antropologi", amount: 45000, proofUrl: "" },
+          { id: "e2", date: "12 Nov 2026", pocket: "Produksi Film & Riset", note: "Baterai cadangan & kartu memori", amount: 50000, proofUrl: "" }
+        ]
+      },
+      attendance: [
+        { id: "att1", code: "ANT-101", name: "Pengantar Antropologi", total: 14, attended: 11, absent: 0 },
+        { id: "att2", code: "ANT-103", name: "Etnografi Nusantara", total: 14, attended: 10, absent: 1 }
+      ],
+      calendarLayers: [
+        { id: "lay-kuliah", name: "Jadwal Kuliah & Tugas", color: "#4B7361" },
+        { id: "lay-kip", name: "Administrasi KIP-K", color: "#C86D51" },
+        { id: "lay-utbk", name: "Arsip Transisi", color: "#8C6D46" }
+      ],
+      agendas: [
+        { id: "ag1", date: "2026-11-19", layerId: "lay-kuliah", title: "Presentasi Kelompok Pengantar Antropologi", semester: 1, done: false },
+        { id: "ag2", date: "2026-11-24", layerId: "lay-kip", title: "Verifikasi Rekening KIP-K", semester: 1, done: false }
+      ],
+      logbook: [
+        { id: "lg1", date: "16 Nov 2026", category: "Akademik", desc: "Menyelesaikan Resume Bab Kebudayaan Koentjaraningrat (ANT-101)", points: "+25 XP", proofUrl: "" },
+        { id: "lg2", date: "14 Nov 2026", category: "Organisasi", desc: "Aktif di Divisi Dokumenter — UKM Kine Klub UGM", points: "+40 XP", proofUrl: "" }
+      ],
+      simCourses: [
+        { id: "sim1", name: "Teori Antropologi Klasik (Simulasi)", sks: 3, grade: "A" },
+        { id: "sim2", name: "Metode Etnografi Lapangan (Simulasi)", sks: 3, grade: "A-" }
+      ],
+      savedDrafts: [
+        {
+          id: "dr1",
+          date: "17 Nov 2026",
+          subject: "Permohonan Bimbingan Akademik — Larissa",
+          body: "Assalamu'alaikum warahmatullahi wabarakatuh.\n\nSelamat pagi Bapak/Ibu Dosen Pembimbing Akademik, perkenalkan saya Larissa (NIM: 26/548921/SA/23410), mahasiswa Program Studi Antropologi Budaya, Fakultas Ilmu Budaya UGM.\n\nMohon izin untuk mengajukan waktu bimbingan akademik terkait rencana studi semester ini. Apakah Bapak/Ibu berkenan meluangkan waktu pada Kamis, 20 November 2026 pukul 10.00 WIB?\n\nAtas perhatian dan kesediaan Bapak/Ibu, saya ucapkan terima kasih.\n\nHormat saya,\nLarissa\nNIM: 26/548921/SA/23410"
+        }
+      ]
+    };
+
+    let state = loadState();
+    let modalContext = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(defaultState));
+        const parsed = JSON.parse(raw);
+        return {
+          ...defaultState,
+          ...parsed,
+          profile: {
+            ...defaultState.profile,
+            ...(parsed.profile || {}),
+            avatar: { ...defaultState.profile.avatar, ...((parsed.profile && parsed.profile.avatar) || {}) }
+          },
+          ui: { ...defaultState.ui, ...(parsed.ui || {}) },
+          kip: { ...defaultState.kip, ...(parsed.kip || {}) }
+        };
+      } catch (e) {
+        return JSON.parse(JSON.stringify(defaultState));
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        syncToFirebase();
+      } catch (e) {
+        console.error("Gagal menyimpan state lokal:", e);
+      }
+    }
+
+    async function syncToFirebase() {
+      const dot = document.getElementById("sync-dot");
+      const label = document.getElementById("sync-label");
+      try {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+        if (label) label.textContent = "Menyimpan...";
+        await fetch(FIREBASE_DB_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(state)
+        });
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-sage";
+        if (label) label.textContent = "Firebase Sync";
+      } catch (e) {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
+        if (label) label.textContent = "Offline Mode";
+      }
+    }
+
+    async function syncFromFirebase(manualNotify = false) {
+      const dot = document.getElementById("sync-dot");
+      const label = document.getElementById("sync-label");
+      try {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+        const res = await fetch(FIREBASE_DB_URL);
+        if (!res.ok) throw new Error("Network error");
+        const remote = await res.json();
+        if (remote && remote.profile) {
+          state = {
+            ...defaultState,
+            ...remote,
+            profile: {
+              ...defaultState.profile,
+              ...(remote.profile || {}),
+              avatar: { ...defaultState.profile.avatar, ...((remote.profile && remote.profile.avatar) || {}) }
+            },
+            ui: { ...defaultState.ui, ...(remote.ui || {}) },
+            kip: { ...defaultState.kip, ...(remote.kip || {}) }
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          renderAll();
+          if (manualNotify) showToast("Data berhasil disinkronkan dari Firebase");
+        } else if (manualNotify) {
+          await syncToFirebase();
+          showToast("Data lokal diunggah ke Firebase");
+        }
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-sage";
+        if (label) label.textContent = "Firebase Sync";
+      } catch (e) {
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
+        if (label) label.textContent = "Offline Mode";
+        if (manualNotify) showToast("Gagal terhubung ke Firebase (Mode Offline)");
+      }
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("toast-box");
+      const text = document.getElementById("toast-text");
+      if (!box || !text) return;
+      text.textContent = msg;
+      box.classList.remove("translate-y-24", "opacity-0");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        box.classList.add("translate-y-24", "opacity-0");
+      }, 2800);
+    }
+
+    function addXP(pts, category, desc, proofUrl = "") {
+      state.profile.xp = (state.profile.xp || 0) + pts;
+      if (category && desc) {
+        const today = new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+        state.logbook.unshift({
+          id: "lg-" + Date.now(),
+          date: today,
+          category,
+          desc,
+          points: `+${pts} XP`,
+          proofUrl
+        });
+      }
+    }
+
+    /* ==================== PIN SECURITY LOCK ==================== */
+    function checkPinLockOnLoad() {
+      const overlay = document.getElementById("pin-lock-overlay");
+      if (!overlay) return;
+      if (state.profile.pinEnabled === false) {
+        overlay.classList.add("hidden");
+        return;
+      }
+      
+      const hintBox = document.getElementById("pin-hint-text-box");
+      const hintVal = document.getElementById("pin-hint-dynamic-val");
+      if (hintBox && hintVal) {
+        if (state.profile.showPinHint === false) {
+          hintBox.classList.add("hidden");
+        } else {
+          hintBox.classList.remove("hidden");
+          hintVal.textContent = state.profile.pin || "2341";
+        }
+      }
+
+      const unlocked = sessionStorage.getItem(SESSION_UNLOCK_KEY) === "true";
+      if (!unlocked) {
+        document.getElementById("pin-avatar-slot").innerHTML = getFeminineAvatarSVG();
+        document.getElementById("pin-welcome-name").textContent = `Halo, ${state.profile.name}`;
+        overlay.classList.remove("hidden");
+        setTimeout(() => document.getElementById("pin-input-field")?.focus(), 100);
+      } else {
+        overlay.classList.add("hidden");
+      }
+    }
+
+    function verifyPinUnlock(e) {
+      e.preventDefault();
+      const input = document.getElementById("pin-input-field");
+      const err = document.getElementById("pin-error-msg");
+      const expected = String(state.profile.pin || "2341");
+      if (input.value.trim() === expected) {
+        sessionStorage.setItem(SESSION_UNLOCK_KEY, "true");
+        document.getElementById("pin-lock-overlay").classList.add("hidden");
+        err.classList.add("hidden");
+        input.value = "";
+        showToast(`Selamat datang kembali, ${state.profile.name}`);
+      } else {
+        err.classList.remove("hidden");
+        input.value = "";
+        input.focus();
+      }
+    }
+
+    /* ==================== BACKUP, RESTORE & FRESH START ==================== */
+    function exportBackupJSON() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `AnthroLens_Backup_${state.profile.name}_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Backup JSON berhasil diunduh");
+    }
+
+    function importBackupJSON(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed && parsed.profile) {
+            state = {
+              ...defaultState,
+              ...parsed,
+              profile: { ...defaultState.profile, ...parsed.profile, avatar: { ...defaultState.profile.avatar, ...(parsed.profile.avatar || {}) } },
+              ui: { ...defaultState.ui, ...(parsed.ui || {}) },
+              kip: { ...defaultState.kip, ...(parsed.kip || {}) }
+            };
+            saveState();
+            renderAll();
+            showToast("Backup JSON berhasil dipulihkan");
+          } else {
+            showToast("Format file JSON tidak valid");
+          }
+        } catch (err) {
+          showToast("Gagal membaca file JSON");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    }
+
+    function confirmFreshStartReset() {
+      openModal("Reset Data Bawaan (Fresh Start)", `
+        <div class="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-900 text-xs leading-relaxed">
+          Tindakan ini akan mengosongkan seluruh contoh mata kuliah, catatan, aktivitas, pengeluaran KIP, agenda, dan logbook agar kamu bisa mulai mengisi dari nol. <strong>Profil & Avatar tetap tersimpan.</strong>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold">Ya, Kosongkan Sekarang</button>
+      `, { type: "fresh-start-reset" });
+    }
+
+    /* ==================== FEMININE AVATAR SVG ==================== */
+    function darkenHexColor(hex, factor = 0.68) {
+      const clean = String(hex || "#2C221E").replace("#", "");
+      if (clean.length !== 6) return "#1E1714";
+      const r = Math.max(0, Math.min(255, Math.round(parseInt(clean.slice(0, 2), 16) * factor)));
+      const g = Math.max(0, Math.min(255, Math.round(parseInt(clean.slice(2, 4), 16) * factor)));
+      const b = Math.max(0, Math.min(255, Math.round(parseInt(clean.slice(4, 6), 16) * factor)));
+      return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+    }
+
+    function getFeminineAvatarSVG() {
+      const av = (state.profile && state.profile.avatar) || {};
+      const validStyles = ["curtain_long", "wavy_side", "ponytail", "wolf_cut", "space_buns", "low_side_bun", "twin_braids", "layered_bob"];
+      const style = validStyles.includes(av.hairstyle) ? av.hairstyle : "curtain_long";
+      const hair = av.hairColor || "#2C221E";
+      const outfitStyle = av.outfitStyle || "blouse_ribbon";
+      const shirt = av.outfitColor || "#C86D51";
+      const expression = av.expression || "sweet_smile";
+      const hasCamera = av.hasCamera !== undefined ? av.hasCamera : true;
+      const hasNotebook = av.hasNotebook !== undefined ? av.hasNotebook : true;
+      const hasGlasses = !!av.hasGlasses;
+      const hasHairClip = av.hasHairClip !== undefined ? av.hasHairClip : true;
+
+      const hairDepth = darkenHexColor(hair, 0.66);
+
+      // 1. BACK HAIR BASE (8 Variasi Rambut Cantik)
+      let backHairSVG = "";
+      if (style === "curtain_long") {
+        backHairSVG = `
+          <path d="M 28 48 C 21 69, 22 95, 31 115 L 89 115 C 98 95, 99 69, 92 48 C 87 22, 33 22, 28 48 Z" fill="${hairDepth}" />
+          <path d="M 31 50 C 26 70, 27 95, 34 115 L 86 115 C 93 95, 94 70, 89 50 Z" fill="${hair}" />
+        `;
+      } else if (style === "wavy_side") {
+        backHairSVG = `
+          <path d="M 28 46 C 19 60, 20 75, 25 87 C 20 98, 24 109, 32 115 L 88 115 C 96 109, 100 98, 95 87 C 100 75, 101 60, 92 46 C 86 22, 34 22, 28 46 Z" fill="${hairDepth}" />
+          <path d="M 31 48 C 24 62, 25 75, 29 88 C 25 98, 28 108, 35 115 L 85 115 C 92 108, 95 98, 91 88 C 95 75, 96 62, 89 48 Z" fill="${hair}" />
+        `;
+      } else if (style === "ponytail") {
+        backHairSVG = `
+          <path d="M 73 27 C 96 25, 106 47, 98 75 C 95 85, 88 91, 82 88 C 87 74, 86 52, 74 37 Z" fill="${hairDepth}" />
+          <path d="M 75 29 C 93 29, 102 49, 95 72 C 92 80, 86 84, 83 81 C 86 68, 85 49, 74 36 Z" fill="${hair}" />
+          <path d="M 74 31 Q 81 27 83 35 Q 77 38 74 31 Z" fill="#F29CB0" />
+          <path d="M 34 46 C 34 23, 86 23, 86 46 C 86 60, 80 68, 60 68 C 40 68, 34 60, 34 46 Z" fill="${hair}" />
+        `;
+      } else if (style === "wolf_cut") {
+        backHairSVG = `
+          <path d="M 27 47 C 20 58, 22 69, 28 75 C 21 83, 24 95, 33 102 L 87 102 C 96 95, 99 83, 92 75 C 98 69, 100 58, 93 47 C 87 22, 33 22, 27 47 Z" fill="${hairDepth}" />
+          <path d="M 30 49 C 24 59, 26 68, 31 74 C 25 81, 28 92, 36 99 L 84 99 C 92 92, 95 81, 89 74 C 94 68, 96 59, 90 49 Z" fill="${hair}" />
+          <path d="M 32 76 L 26 83 M 88 76 L 94 83" stroke="${hair}" stroke-width="3" stroke-linecap="round" />
+        `;
+      } else if (style === "space_buns") {
+        backHairSVG = `
+          <circle cx="35" cy="27" r="11" fill="${hairDepth}" />
+          <circle cx="35" cy="26" r="9.5" fill="${hair}" />
+          <path d="M 27 33 Q 35 37 43 33" fill="none" stroke="#F29CB0" stroke-width="2.6" stroke-linecap="round" />
+          <circle cx="85" cy="27" r="11" fill="${hairDepth}" />
+          <circle cx="85" cy="26" r="9.5" fill="${hair}" />
+          <path d="M 77 33 Q 85 37 93 33" fill="none" stroke="#F29CB0" stroke-width="2.6" stroke-linecap="round" />
+          <path d="M 34 48 C 34 24, 86 24, 86 48 C 86 64, 79 72, 60 72 C 41 72, 34 64, 34 48 Z" fill="${hair}" />
+        `;
+      } else if (style === "low_side_bun") {
+        backHairSVG = `
+          <circle cx="84" cy="68" r="11.5" fill="${hairDepth}" />
+          <circle cx="85" cy="67" r="10" fill="${hair}" />
+          <path d="M 76 60 Q 82 56 86 63" fill="none" stroke="#F6C85F" stroke-width="2.4" stroke-linecap="round" />
+          <path d="M 33 48 C 33 23, 87 23, 87 48 C 87 64, 79 73, 60 73 C 41 73, 33 64, 33 48 Z" fill="${hair}" />
+        `;
+      } else if (style === "twin_braids") {
+        backHairSVG = `
+          <path d="M 34 48 C 34 24, 86 24, 86 48 C 86 62, 80 70, 60 70 C 40 70, 34 62, 34 48 Z" fill="${hairDepth}" />
+          <!-- Left Braid -->
+          <path d="M 35 64 C 29 72, 29 80, 34 88 C 29 95, 30 103, 35 111 L 42 111 C 45 103, 45 95, 41 88 C 45 80, 44 72, 40 64 Z" fill="${hair}" />
+          <path d="M 33 74 L 41 78 M 32 86 L 41 90 M 33 98 L 41 102" stroke="${hairDepth}" stroke-width="1.8" stroke-linecap="round" />
+          <rect x="33" y="106" width="10" height="3.5" rx="1.5" fill="#F29CB0" />
+          <!-- Right Braid -->
+          <path d="M 85 64 C 91 72, 91 80, 86 88 C 91 95, 90 103, 85 111 L 78 111 C 75 103, 75 95, 79 88 C 75 80, 76 72, 80 64 Z" fill="${hair}" />
+          <path d="M 87 74 L 79 78 M 88 86 L 79 90 M 87 98 L 79 102" stroke="${hairDepth}" stroke-width="1.8" stroke-linecap="round" />
+          <rect x="77" y="106" width="10" height="3.5" rx="1.5" fill="#F29CB0" />
+        `;
+      } else {
+        // Layered Short Bob
+        backHairSVG = `
+          <path d="M 30 48 C 25 63, 27 77, 36 83 C 44 87, 76 87, 84 83 C 93 77, 95 63, 90 48 C 86 24, 34 24, 30 48 Z" fill="${hairDepth}" />
+          <path d="M 33 49 C 29 62, 31 74, 39 80 C 46 83, 74 83, 81 80 C 89 74, 91 62, 87 49 Z" fill="${hair}" />
+        `;
+      }
+
+      // 2. OUTFIT / CLOTHING MODELS
+      let outfitSVG = "";
+      if (outfitStyle === "almamater_ugm") {
+        outfitSVG = `
+          <path d="M 30 114 C 30 88, 43 78, 60 78 C 77 78, 90 88, 90 114 Z" fill="${shirt}" />
+          <polygon points="51,78 60,95 69,78" fill="#FAF8F5" />
+          <polygon points="51,78 45,92 55,95 60,95" fill="#231F20" opacity="0.22" />
+          <polygon points="69,78 75,92 65,95 60,95" fill="#231F20" opacity="0.22" />
+          <circle cx="60" cy="101" r="1.6" fill="#E8C565" />
+          <circle cx="60" cy="108" r="1.6" fill="#E8C565" />
+        `;
+      } else if (outfitStyle === "field_vest") {
+        outfitSVG = `
+          <path d="M 31 114 C 31 89, 44 79, 60 79 C 76 79, 89 89, 89 114 Z" fill="#F7F3EB" />
+          <path d="M 36 84 L 52 79 L 54 114 L 31 114 Z" fill="${shirt}" />
+          <path d="M 84 84 L 68 79 L 66 114 L 89 114 Z" fill="${shirt}" />
+          <rect x="37" y="96" width="11" height="9" rx="2" fill="#000000" opacity="0.14" />
+          <rect x="72" y="96" width="11" height="9" rx="2" fill="#000000" opacity="0.14" />
+        `;
+      } else if (outfitStyle === "cozy_sweater") {
+        outfitSVG = `
+          <path d="M 29 114 C 29 87, 42 78, 60 78 C 78 78, 91 87, 91 114 Z" fill="${shirt}" />
+          <path d="M 48 78 Q 60 85 72 78 L 70 84 Q 60 90 50 84 Z" fill="#FFFFFF" opacity="0.28" />
+          <path d="M 45 92 L 45 114 M 55 94 L 55 114 M 65 94 L 65 114 M 75 92 L 75 114" stroke="#FFFFFF" stroke-width="1.3" opacity="0.2" stroke-linecap="round" />
+        `;
+      } else if (outfitStyle === "sailor_collar") {
+        outfitSVG = `
+          <path d="M 31 114 C 31 88, 44 78, 60 78 C 76 78, 89 88, 89 114 Z" fill="${shirt}" />
+          <path d="M 43 81 L 60 93 L 77 81 L 72 78 L 60 87 L 48 78 Z" fill="#FAF8F5" />
+          <path d="M 56 91 L 60 95 L 64 91 L 62 103 L 60 100 L 58 103 Z" fill="#E06D7B" />
+        `;
+      } else {
+        // Blouse Ribbon (Default)
+        outfitSVG = `
+          <path d="M 31 114 C 31 88, 44 78, 60 78 C 76 78, 89 88, 89 114 Z" fill="${shirt}" />
+          <path d="M 49 78 Q 54 85 60 83 Q 66 85 71 78 L 67 77 L 60 82 L 53 77 Z" fill="#FAF8F5" />
+          <path d="M 55 85 L 60 83 L 57 90 Z M 65 85 L 60 83 L 63 90 Z" fill="#FAF8F5" />
+          <circle cx="60" cy="83.5" r="1.8" fill="#F29CB0" />
+        `;
+      }
+
+      // 3. EXPRESSIONS (EYES & MOUTH)
+      let eyesAndMouthSVG = "";
+      if (expression === "sparkly_happy") {
+        eyesAndMouthSVG = `
+          <!-- Sparkling Happy Eyes -->
+          <path d="M 47.5 52.5 Q 51 48 54.5 52.5" fill="none" stroke="#2B2927" stroke-width="2.2" stroke-linecap="round" />
+          <path d="M 65.5 52.5 Q 69 48 72.5 52.5" fill="none" stroke="#2B2927" stroke-width="2.2" stroke-linecap="round" />
+          <path d="M 46.5 51 L 48 52 M 73.5 51 L 72 52" stroke="#2B2927" stroke-width="1.4" stroke-linecap="round" />
+          <!-- Cute Open Smile -->
+          <path d="M 55.5 60.5 Q 60 67.5 64.5 60.5 Z" fill="#E37B84" stroke="#2B2927" stroke-width="1.5" stroke-linejoin="round" />
+          <!-- Sparkles -->
+          <path d="M 82 40 L 83.2 42.8 L 86 44 L 83.2 45.2 L 82 48 L 80.8 45.2 L 78 44 L 80.8 42.8 Z" fill="#F2B84B" />
+        `;
+      } else if (expression === "playful_wink") {
+        eyesAndMouthSVG = `
+          <!-- Left Open Eye with Eyelash -->
+          <ellipse cx="51" cy="52" rx="2.5" ry="2.8" fill="#2B2927" />
+          <path d="M 47.5 50.2 L 49 51.2" stroke="#2B2927" stroke-width="1.5" stroke-linecap="round" />
+          <circle cx="51.9" cy="51" r="1" fill="#FFFFFF" />
+          <!-- Right Wink -->
+          <path d="M 65.5 52.2 Q 69 49.2 72.5 52.5" fill="none" stroke="#2B2927" stroke-width="2.1" stroke-linecap="round" />
+          <!-- Cat/Sweet Smile -->
+          <path d="M 56 61 Q 60 65 64 61" fill="none" stroke="#2B2927" stroke-width="1.9" stroke-linecap="round" />
+        `;
+      } else if (expression === "calm_focus") {
+        eyesAndMouthSVG = `
+          <!-- Calm Focused Eyes -->
+          <ellipse cx="51" cy="52.3" rx="2.4" ry="2.5" fill="#2B2927" />
+          <ellipse cx="69" cy="52.3" rx="2.4" ry="2.5" fill="#2B2927" />
+          <path d="M 47.5 50.3 L 54.2 50.6 M 72.5 50.3 L 65.8 50.6" stroke="#2B2927" stroke-width="1.6" stroke-linecap="round" />
+          <circle cx="51.8" cy="51.4" r="0.9" fill="#FFFFFF" />
+          <circle cx="69.8" cy="51.4" r="0.9" fill="#FFFFFF" />
+          <!-- Gentle Poised Smile -->
+          <path d="M 56.8 61.5 Q 60 63.6 63.2 61.5" fill="none" stroke="#2B2927" stroke-width="1.8" stroke-linecap="round" />
+        `;
+      } else {
+        // Sweet Smile (Default)
+        eyesAndMouthSVG = `
+          <ellipse cx="51" cy="52" rx="2.5" ry="2.8" fill="#2B2927" />
+          <ellipse cx="69" cy="52" rx="2.5" ry="2.8" fill="#2B2927" />
+          <path d="M 47.5 50.2 L 49 51.2 M 72.5 50.2 L 71 51.2" stroke="#2B2927" stroke-width="1.5" stroke-linecap="round" />
+          <circle cx="51.9" cy="51" r="1.05" fill="#FFFFFF" />
+          <circle cx="69.9" cy="51" r="1.05" fill="#FFFFFF" />
+          <circle cx="50.3" cy="53" r="0.55" fill="#FFFFFF" opacity="0.7" />
+          <circle cx="68.3" cy="53" r="0.55" fill="#FFFFFF" opacity="0.7" />
+          <path d="M 56.2 61 Q 60 65.2 63.8 61" fill="none" stroke="#2B2927" stroke-width="1.9" stroke-linecap="round" />
+        `;
+      }
+
+      // 4. FRONT HAIR
+      let frontHairSVG = "";
+      if (style === "wavy_side") {
+        frontHairSVG = `
+          <path d="M 33 50 C 32 22, 88 22, 87 50 C 86 41, 79 34, 71 32 C 62 39, 47 44, 37 48 C 36 59, 37 71, 41 81 C 35 73, 33 60, 33 50 Z" fill="${hair}" />
+          <path d="M 44 33 C 54 34, 66 39, 77 45 C 68 44, 57 40, 47 36 Z" fill="${hairDepth}" opacity="0.4" />
+          <path d="M 79 35 C 85 44, 86 63, 80 79 C 82 64, 81 48, 76 38 Z" fill="${hair}" />
+          <path d="M 46 27.5 Q 60 23.5 74 27.5" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" opacity="0.26" />
+        `;
+      } else {
+        frontHairSVG = `
+          <path d="M 33 51 C 32 22, 88 22, 87 51 C 86 60, 84 70, 79 78 C 81 62, 80 46, 74 38 C 69 43, 64 45, 60 35.5 C 56 45, 51 43, 46 38 C 40 46, 39 62, 41 78 C 36 70, 34 60, 33 51 Z" fill="${hair}" />
+          <path d="M 55 34 C 54 39, 53 43, 51 46 C 54 43, 56 39, 57 35 Z" fill="${hair}" />
+          <path d="M 65 34 C 66 39, 67 43, 69 46 C 66 43, 64 39, 63 35 Z" fill="${hair}" />
+          <path d="M 45 27.5 Q 60 23 75 27.5" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" opacity="0.26" />
+        `;
+      }
+
+      const hairClipSVG = hasHairClip ? `
+        <g transform="translate(72, 37) rotate(18)">
+          <rect x="0" y="0" width="8.5" height="3.2" rx="1.6" fill="#F6C85F" />
+          <circle cx="2" cy="1.6" r="1.1" fill="#FFFFFF" opacity="0.85" />
+        </g>
+      ` : "";
+
+      const glassesSVG = hasGlasses ? `
+        <circle cx="51" cy="52" r="6.5" fill="none" stroke="#3B3532" stroke-width="1.6" />
+        <circle cx="69" cy="52" r="6.5" fill="none" stroke="#3B3532" stroke-width="1.6" />
+        <line x1="57.5" y1="52" x2="62.5" y2="52" stroke="#3B3532" stroke-width="1.6" />
+      ` : "";
+
+      const cameraSVG = hasCamera ? `
+        <path d="M 43 79 L 55 96 L 77 80" fill="none" stroke="#2B2927" stroke-width="2.2" stroke-linecap="round" />
+        <rect x="49" y="88" width="22" height="15" rx="3.5" fill="#2B2927" />
+        <rect x="53" y="85.5" width="7" height="3" rx="1" fill="#4A4642" />
+        <circle cx="60" cy="95.5" r="4.5" fill="#FAF8F5" />
+        <circle cx="60" cy="95.5" r="2.5" fill="#5D736F" />
+        <circle cx="67" cy="91" r="1.2" fill="#C86D51" />
+      ` : "";
+
+      const notebookSVG = hasNotebook ? `
+        <rect x="66" y="84" width="18" height="22" rx="2.5" fill="#E6D5B8" stroke="#2B2927" stroke-width="1.7" transform="rotate(-8 75 95)" />
+        <line x1="69" y1="89" x2="80" y2="87.5" stroke="#2B2927" stroke-width="1.4" />
+        <line x1="70" y1="94" x2="81" y2="92.5" stroke="#2B2927" stroke-width="1.4" />
+        <line x1="71" y1="99" x2="78" y2="98" stroke="#C86D51" stroke-width="1.4" />
+      ` : "";
+
+      return `
+        <svg viewBox="0 0 120 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="56" fill="#EFECE6" />
+          ${backHairSVG}
+          <rect x="54.5" y="66" width="11" height="14" rx="5" fill="#F2C49E" />
+          ${outfitSVG}
+          <!-- Delicate Face Contour -->
+          <path d="M 41 49 C 41 36, 79 36, 79 49 C 79 63, 70 72.5, 60 72.5 C 50 72.5, 41 63, 41 49 Z" fill="#FCE0C8" />
+          <!-- Soft Eyebrows -->
+          <path d="M 47 46 Q 51 44.5 55 46.2" fill="none" stroke="${hair}" stroke-width="1.35" stroke-linecap="round" opacity="0.75" />
+          <path d="M 65 46.2 Q 69 44.5 73 46" fill="none" stroke="${hair}" stroke-width="1.35" stroke-linecap="round" opacity="0.75" />
+          <!-- Rosy Blush -->
+          <ellipse cx="45.2" cy="56.8" rx="3.6" ry="2" fill="#F0948D" opacity="0.55" />
+          <ellipse cx="74.8" cy="56.8" rx="3.6" ry="2" fill="#F0948D" opacity="0.55" />
+          <circle cx="44.2" cy="56.4" r="0.6" fill="#FFFFFF" opacity="0.7" />
+          <circle cx="75.8" cy="56.4" r="0.6" fill="#FFFFFF" opacity="0.7" />
+          ${eyesAndMouthSVG}
+          ${frontHairSVG}
+          ${hairClipSVG}
+          ${glassesSVG}
+          ${notebookSVG}
+          ${cameraSVG}
+        </svg>
+      `;
+    }
+
+    /* ==================== NAVIGATION & SIDEBAR ==================== */
+    function toggleSidebar(forceState) {
+      const next = typeof forceState === "boolean" ? forceState : !state.ui.sidebarOpen;
+      state.ui.sidebarOpen = next;
+      applySidebarState();
+      saveState();
+    }
+
+    function applySidebarState() {
+      const drawer = document.getElementById("sidebar-drawer");
+      const rail = document.getElementById("collapsed-left-rail");
+      const backdrop = document.getElementById("sidebar-backdrop");
+      const main = document.getElementById("main-workspace");
+
+      if (state.ui.sidebarOpen) {
+        drawer.classList.remove("-translate-x-full", "lg:w-0", "lg:p-0", "lg:border-none", "lg:overflow-hidden");
+        drawer.classList.add("translate-x-0", "w-[268px]");
+        rail.classList.add("opacity-0", "pointer-events-none", "-translate-x-4");
+        rail.classList.remove("opacity-100", "pointer-events-auto", "translate-x-0");
+        backdrop.classList.remove("hidden");
+        main.classList.remove("sm:pl-16");
+      } else {
+        drawer.classList.add("-translate-x-full", "lg:w-0", "lg:p-0", "lg:border-none", "lg:overflow-hidden");
+        drawer.classList.remove("translate-x-0", "w-[268px]");
+        rail.classList.remove("opacity-0", "pointer-events-none", "-translate-x-4");
+        rail.classList.add("opacity-100", "pointer-events-auto", "translate-x-0");
+        backdrop.classList.add("hidden");
+        main.classList.add("sm:pl-16");
+      }
+    }
+
+    function switchTab(tabId) {
+      state.ui.activeTab = tabId;
+      document.querySelectorAll(".tab-panel").forEach(el => el.classList.add("hidden"));
+      const target = document.getElementById("tab-" + tabId);
+      if (target) target.classList.remove("hidden");
+
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        const active = btn.dataset.nav === tabId;
+        btn.className = active
+          ? "nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-charcoal text-white transition"
+          : "nav-btn w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-mutedInk hover:bg-cream hover:text-charcoal transition";
+      });
+
+      document.querySelectorAll(".rail-btn").forEach(btn => {
+        const active = btn.dataset.rail === tabId;
+        btn.className = active
+          ? "rail-btn w-9 h-9 rounded-full flex items-center justify-center bg-charcoal text-white transition"
+          : "rail-btn w-9 h-9 rounded-full flex items-center justify-center text-mutedInk hover:bg-sand hover:text-charcoal transition";
+      });
+
+      document.querySelectorAll(".mnav-btn").forEach(btn => {
+        const primaryTabs = ["dashboard", "courses", "calendar", "kip"];
+        const isMoreSlot = btn.dataset.mnav === "more" && !primaryTabs.includes(tabId);
+        const active = btn.dataset.mnav === tabId || isMoreSlot;
+        btn.className = active
+          ? "mnav-btn flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[10px] font-bold bg-terracotta text-white shadow-xs transition"
+          : "mnav-btn flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[10px] font-bold text-mutedInk hover:text-charcoal transition";
+      });
+
+      if (window.innerWidth < 1024 && state.ui.sidebarOpen) {
+        toggleSidebar(false);
+      }
+      saveState();
+    }
+
+    function toggleManageMode() {
+      state.ui.manageMode = !state.ui.manageMode;
+      applyManageModeUI();
+      saveState();
+      showToast(state.ui.manageMode ? "Mode Kelola diaktifkan" : "Mode Kelola disembunyikan");
+    }
+
+    function applyManageModeUI() {
+      const pill = document.getElementById("manage-mode-pill");
+      if (state.ui.manageMode) {
+        document.body.classList.add("manage-mode");
+        if (pill) {
+          pill.textContent = "ON";
+          pill.className = "px-2 py-0.5 rounded-full bg-terracotta text-white font-mono-code text-[10px]";
+        }
+      } else {
+        document.body.classList.remove("manage-mode");
+        if (pill) {
+          pill.textContent = "OFF";
+          pill.className = "px-2 py-0.5 rounded-full bg-stone-200 text-mutedInk font-mono-code text-[10px]";
+        }
+      }
+    }
+
+    function toggleThemePopover() {
+      document.getElementById("theme-popover").classList.toggle("hidden");
+    }
+
+    function applyTheme(themeName) {
+      state.profile.theme = themeName;
+      state.profile.customAccent = "";
+      document.documentElement.setAttribute("data-theme", themeName);
+      document.documentElement.style.removeProperty("--accent-primary");
+      document.getElementById("theme-popover").classList.add("hidden");
+      saveState();
+    }
+
+    function applyCustomAccent(hex) {
+      state.profile.customAccent = hex;
+      document.documentElement.style.setProperty("--accent-primary", hex);
+      document.getElementById("theme-popover").classList.add("hidden");
+      saveState();
+    }
+
+    function calculateGPAStats() {
+      let totalSksAll = 0, totalPtsAll = 0;
+      let totalEnrolledSks = 0;
+      let semSks = 0, semPts = 0;
+
+      state.courses.forEach(c => {
+        const sksNum = Number(c.sks) || 0;
+        totalEnrolledSks += sksNum;
+        const gp = GRADE_POINTS[c.grade];
+        if (gp !== null && gp !== undefined) {
+          totalSksAll += sksNum;
+          totalPtsAll += sksNum * gp;
+          if (Number(c.semester) === Number(state.ui.activeSemester)) {
+            semSks += sksNum;
+            semPts += sksNum * gp;
+          }
+        }
+      });
+
+      const ipk = totalSksAll > 0 ? (totalPtsAll / totalSksAll).toFixed(2) : "0.00";
+      const ips = semSks > 0 ? (semPts / semSks).toFixed(2) : "0.00";
+      return { ipk, ips, totalEnrolledSks };
+    }
+
+    /* ==================== RENDERING ALL ==================== */
+    function renderProfile() {
+      const svg = getFeminineAvatarSVG();
+      document.getElementById("sidebar-avatar-slot").innerHTML = svg;
+      document.getElementById("dash-avatar-slot").innerHTML = svg;
+
+      document.getElementById("sidebar-user-name").textContent = state.profile.name;
+      document.getElementById("sidebar-user-nim").textContent = state.profile.nim;
+      document.getElementById("dash-user-name").textContent = state.profile.name;
+      document.getElementById("dash-nim-badge").textContent = `NIM: ${state.profile.nim}`;
+      document.getElementById("dash-stage-subtitle").textContent = state.profile.stage;
+
+      const xp = state.profile.xp || 0;
+      const level = Math.floor(xp / 200) + 1;
+      const nextXp = level * 200;
+      const pct = Math.min(100, Math.round(((xp % 200) / 200) * 100));
+
+      document.getElementById("dash-level-label").textContent = `Level ${level} • Antropologi UGM`;
+      document.getElementById("dash-xp-label").textContent = `${xp} / ${nextXp} XP`;
+      document.getElementById("dash-xp-bar").style.width = `${pct}%`;
+    }
+
+    function renderDashboard() {
+      const { ipk } = calculateGPAStats();
+      const allTasks = state.courses.flatMap(c => c.tasks);
+      const doneTasks = allTasks.filter(t => t.done).length;
+      const taskPct = allTasks.length > 0 ? Math.round((doneTasks / allTasks.length) * 100) : 0;
+
+      const totalSpent = state.kip.pockets.reduce((s, p) => s + Number(p.allocated || 0), 0);
+      const totalBudget = Number(state.kip.totalBudget || 4200000);
+      const kipSpentPct = Math.min(100, Math.round((totalSpent / totalBudget) * 100));
+
+      const widgets = [
+        { id: "w-ipk", label: "IPK Kumulatif", value: ipk, sub: "Syarat KIP-K: Min 3.00", pct: Math.min(100, (parseFloat(ipk) / 4) * 100), color: "#4B7361" },
+        { id: "w-tasks", label: "Progres Tugas", value: `${doneTasks}/${allTasks.length}`, sub: `${taskPct}% Selesai`, pct: taskPct, color: "#7E8CE0" },
+        { id: "w-wallet", label: "Alokasi Pos KIP", value: `Rp ${(totalSpent / 1000).toFixed(0)}k`, sub: `Dari Total Rp ${(totalBudget / 1000).toFixed(0)}k`, pct: kipSpentPct, color: "#D4A338" }
+      ];
+
+      document.getElementById("dashboard-widget-toggles").innerHTML = widgets.map(w => {
+        const isHidden = (state.ui.hiddenWidgets || []).includes(w.id);
+        return `
+          <button type="button" onclick="toggleWidgetVisibility('${w.id}')" class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${isHidden ? 'bg-white text-mutedInk border-stone-300' : 'bg-charcoal text-white border-charcoal'}">
+            ${isHidden ? 'Tampilkan' : 'Sembunyikan'} ${w.label}
+          </button>
+        `;
+      }).join("");
+
+      document.getElementById("dashboard-stats-grid").innerHTML = widgets
+        .filter(w => !(state.ui.hiddenWidgets || []).includes(w.id))
+        .map(w => `
+          <div class="bg-paper rounded-3xl border border-stoneBorder p-5 shadow-bento flex flex-col justify-between space-y-3 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-mutedInk">${w.label}</span>
+              <span class="font-mono-code text-[11px] font-bold px-2 py-0.5 rounded-full bg-cream text-charcoal">${Math.round(w.pct)}%</span>
+            </div>
+            <div class="text-3xl font-extrabold text-charcoal tracking-tight">${w.value}</div>
+            <div class="space-y-1.5">
+              <div class="w-full h-2 rounded-full bg-sand overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300" style="width: ${w.pct}%; background-color: ${w.color}"></div>
+              </div>
+              <div class="text-[11px] text-mutedInk">${w.sub}</div>
+            </div>
+          </div>
+        `).join("");
+
+      const days = [
+        { day: "Sen", val: 65 }, { day: "Sel", val: 85 }, { day: "Rab", val: 50 },
+        { day: "Kam", val: 92 }, { day: "Jum", val: 75 }, { day: "Sab", val: 60 }, { day: "Min", val: 80 }
+      ];
+      document.getElementById("weekly-activity-chart").innerHTML = days.map(d => `
+        <div class="flex flex-col items-center gap-2 h-full justify-end">
+          <div class="w-full max-w-[34px] bg-sand rounded-2xl h-28 flex items-end overflow-hidden p-1">
+            <div class="w-full rounded-xl bg-terracotta transition-all duration-300" style="height: ${d.val}%"></div>
+          </div>
+          <span class="font-mono-code text-[11px] font-bold text-mutedInk">${d.day}</span>
+        </div>
+      `).join("");
+
+      // Combine upcoming agenda + undone tasks
+      const upcomingAgendas = state.agendas.filter(a => !a.done).map(ag => ({ title: ag.title, date: ag.date, type: 'Agenda' }));
+      const upcomingTasks = state.courses.flatMap(c => c.tasks.filter(t => !t.done).map(t => ({ title: `${c.code}: ${t.title}`, date: t.due, type: 'Tugas' })));
+      const combinedUpcoming = [...upcomingAgendas, ...upcomingTasks].slice(0, 4);
+
+      document.getElementById("dash-upcoming-list").innerHTML = combinedUpcoming.length
+        ? combinedUpcoming.map(item => `
+            <div class="p-3 rounded-2xl bg-cream border border-stoneBorder flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="font-bold text-xs text-charcoal truncate">${item.title}</div>
+                <div class="font-mono-code text-[10px] text-mutedInk">${item.type} • ${item.date}</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-paper border border-stoneBorder text-[10px] font-mono-code font-bold text-terracotta shrink-0">
+                ${item.type}
+              </span>
+            </div>
+          `).join("")
+        : `<div class="text-xs text-mutedInk py-6 text-center">Semua agenda & tugas terdekat sudah selesai.</div>`;
+    }
+
+    function toggleWidgetVisibility(widgetId) {
+      const list = state.ui.hiddenWidgets || [];
+      if (list.includes(widgetId)) {
+        state.ui.hiddenWidgets = list.filter(id => id !== widgetId);
+      } else {
+        state.ui.hiddenWidgets = [...list, widgetId];
+      }
+      saveState();
+      renderDashboard();
+    }
+
+    /* ==================== COURSES & TASKS SYNC ==================== */
+    function renderCourses() {
+      const { ipk, ips, totalEnrolledSks } = calculateGPAStats();
+      document.getElementById("course-ips-display").textContent = ips;
+      document.getElementById("course-ipk-display").textContent = ipk;
+
+      const sksPct = Math.min(100, Math.round((totalEnrolledSks / 144) * 100));
+      document.getElementById("course-sks-display").textContent = `${totalEnrolledSks} / 144 SKS`;
+      document.getElementById("course-sks-pct").textContent = `${sksPct}%`;
+      document.getElementById("course-sks-bar").style.width = `${sksPct}%`;
+
+      let pillsHtml = "";
+      for (let s = 1; s <= 8; s++) {
+        const active = Number(state.ui.activeSemester) === s;
+        pillsHtml += `
+          <button type="button" onclick="selectSemester(${s})"
+            class="px-4 py-2 rounded-full font-mono-code text-xs font-bold shrink-0 transition ${active ? 'bg-charcoal text-white' : 'bg-paper border border-stoneBorder text-mutedInk hover:text-charcoal'}">
+            Semester ${s}
+          </button>
+        `;
+      }
+      document.getElementById("semester-switcher-bar").innerHTML = pillsHtml;
+
+      const filtered = state.courses.filter(c => Number(c.semester) === Number(state.ui.activeSemester));
+      document.getElementById("courses-folder-grid").innerHTML = filtered.length
+        ? filtered.map(c => {
+            const pal = FOLDER_PALETTES[c.colorIdx % FOLDER_PALETTES.length];
+            const gradeOpts = Object.keys(GRADE_POINTS).map(g =>
+              `<option value="${g}" ${c.grade === g ? 'selected' : ''}>${g === '-' ? 'Nilai: -' : 'Nilai: ' + g}</option>`
+            ).join("");
+
+            return `
+              <div>
+                <div class="folder-tab text-white" style="background-color: ${pal.tab}">
+                  <span>${c.code}</span>
+                  <span>•</span>
+                  <span>${c.sks} SKS</span>
+                </div>
+                <div class="folder-card p-5 border shadow-bento space-y-4" style="background-color: ${pal.bg}; border-color: ${pal.border}; color: ${pal.text}">
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 class="text-lg font-extrabold leading-snug">${c.name}</h3>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <select onchange="updateCourseGrade('${c.id}', this.value)" class="px-2.5 py-1 rounded-xl bg-white/85 border border-black/10 font-mono-code text-xs font-bold text-charcoal">
+                        ${gradeOpts}
+                      </select>
+                      <button type="button" onclick="editCourse('${c.id}')" class="manage-only px-2 py-1 rounded-lg bg-white text-charcoal text-[11px] font-bold">Edit</button>
+                      <button type="button" onclick="deleteCourse('${c.id}')" class="manage-only px-2 py-1 rounded-lg bg-red-600 text-white text-[11px] font-bold">Hapus</button>
+                    </div>
+                  </div>
+
+                  <div class="bg-white/80 backdrop-blur-xs rounded-2xl p-3.5 space-y-2 border border-black/5">
+                    <div class="text-[11px] font-mono-code font-bold uppercase opacity-75">Daftar Tugas & Auto-Sync Kalender</div>
+                    ${c.tasks.map(t => `
+                      <div class="flex items-center justify-between gap-2 py-1 border-b border-black/5 last:border-none">
+                        <label class="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0">
+                          <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleCourseTask('${c.id}', '${t.id}')" class="w-4 h-4 rounded accent-charcoal shrink-0" />
+                          <span class="text-xs font-semibold truncate ${t.done ? 'line-through opacity-50' : ''}">${t.title}</span>
+                        </label>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          <span class="font-mono-code text-[10px] opacity-70">${t.due}</span>
+                          <button type="button" onclick="deleteCourseTask('${c.id}', '${t.id}')" class="manage-only text-red-600 font-bold text-xs px-1">x</button>
+                        </div>
+                      </div>
+                    `).join("")}
+
+                    <form onsubmit="addQuickCourseTask(event, '${c.id}')" class="flex gap-1.5 pt-1">
+                      <input type="text" id="task-input-${c.id}" required placeholder="Tambah tugas baru..." class="flex-1 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs text-charcoal focus:outline-none" />
+                      <input type="date" id="task-due-${c.id}" required class="w-32 px-2.5 py-1.5 rounded-xl bg-white border border-black/10 text-xs text-charcoal focus:outline-none" />
+                      <button type="submit" class="px-3 py-1.5 rounded-xl bg-charcoal text-white text-xs font-bold">+</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join("")
+        : `<div class="col-span-full bg-paper rounded-3xl border border-stoneBorder p-8 text-center text-xs text-mutedInk">Belum ada mata kuliah pada Semester ${state.ui.activeSemester}.</div>`;
+    }
+
+    function selectSemester(sem) {
+      state.ui.activeSemester = sem;
+      saveState();
+      renderCourses();
+    }
+
+    function updateCourseGrade(courseId, grade) {
+      const c = state.courses.find(item => item.id === courseId);
+      if (c) {
+        c.grade = grade;
+        saveState();
+        renderCourses();
+        renderDashboard();
+      }
+    }
+
+    function toggleCourseTask(courseId, taskId) {
+      const c = state.courses.find(item => item.id === courseId);
+      if (!c) return;
+      const t = c.tasks.find(item => item.id === taskId);
+      if (t) {
+        t.done = !t.done;
+        if (t.done) {
+          addXP(25, "Akademik & Tugas", `Menyelesaikan tugas ${c.code}: ${t.title}`);
+          showToast("Tugas selesai (+25 XP & Logbook Tercatat)");
+        }
+        saveState();
+        renderCourses();
+        renderDashboard();
+        renderCalendar();
+        renderLogbook();
+      }
+    }
+
+    function addQuickCourseTask(e, courseId) {
+      e.preventDefault();
+      const input = document.getElementById(`task-input-${courseId}`);
+      const dueInput = document.getElementById(`task-due-${courseId}`);
+      const c = state.courses.find(item => item.id === courseId);
+      if (c && input.value.trim() && dueInput.value) {
+        c.tasks.push({
+          id: "t-" + Date.now(),
+          title: input.value.trim(),
+          due: dueInput.value,
+          done: false
+        });
+        saveState();
+        renderCourses();
+        renderDashboard();
+        renderCalendar();
+        showToast("Tugas ditambahkan & otomatis masuk kalender");
+      }
+    }
+
+    function deleteCourseTask(courseId, taskId) {
+      const c = state.courses.find(item => item.id === courseId);
+      if (c) {
+        c.tasks = c.tasks.filter(t => t.id !== taskId);
+        saveState();
+        renderCourses();
+        renderDashboard();
+        renderCalendar();
+      }
+    }
+
+    function deleteCourse(courseId) {
+      state.courses = state.courses.filter(c => c.id !== courseId);
+      saveState();
+      renderCourses();
+      renderDashboard();
+      showToast("Mata kuliah dihapus");
+    }
+
+    /* ==================== NOTES & READINGS ==================== */
+    function renderNotesAndReadings() {
+      const query = (document.getElementById("notes-search-input")?.value || "").toLowerCase();
+      const sortedNotes = [...state.notes]
+        .filter(n => n.title.toLowerCase().includes(query) || n.content.toLowerCase().includes(query) || n.tag.toLowerCase().includes(query) || n.courseCode.toLowerCase().includes(query))
+        .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+      document.getElementById("sticky-notes-grid").innerHTML = sortedNotes.map(n => {
+        const st = STICKY_COLORS[n.color] || STICKY_COLORS.butter;
+        return `
+          <div class="sticky-note p-5 border shadow-bento flex flex-col justify-between space-y-3" style="background-color: ${st.bg}; border-color: ${st.border}">
+            <div>
+              <div class="washi-tape"></div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-white/80 font-mono-code text-[10px] font-bold text-charcoal">${n.courseCode} • ${n.tag}</span>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="togglePinNote('${n.id}')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${n.pinned ? 'bg-charcoal text-white' : 'bg-white/70 text-mutedInk'}">
+                    ${n.pinned ? 'Pinned' : 'Pin'}
+                  </button>
+                  <button type="button" onclick="deleteNote('${n.id}')" class="manage-only px-2 py-0.5 rounded-lg bg-red-600 text-white text-[10px] font-bold">Hapus</button>
+                </div>
+              </div>
+              <h4 class="font-extrabold text-sm text-charcoal mb-1.5">${n.title}</h4>
+              <p class="text-xs text-charcoal/85 leading-relaxed">${n.content}</p>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("reading-list-grid").innerHTML = state.readings.map(r => `
+        <div class="p-4 rounded-2xl bg-cream border border-stoneBorder flex flex-col justify-between gap-2">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="font-extrabold text-sm text-charcoal">${r.title}</div>
+              <div class="text-xs font-semibold text-terracotta">${r.author}</div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="cycleReadingStatus('${r.id}')" class="px-2.5 py-1 rounded-full font-mono-code text-[10px] font-bold ${r.status === 'Selesai' ? 'bg-sageLight text-sage' : 'bg-amber-100 text-amber-800'}">
+                ${r.status}
+              </button>
+              <button type="button" onclick="deleteReading('${r.id}')" class="manage-only px-2 py-0.5 rounded-lg bg-red-600 text-white text-[10px] font-bold">Hapus</button>
+            </div>
+          </div>
+          <p class="text-xs italic text-mutedInk border-l-2 border-terracotta pl-2.5">"${r.quote}"</p>
+        </div>
+      `).join("");
+    }
+
+    function togglePinNote(id) {
+      const n = state.notes.find(item => item.id === id);
+      if (n) {
+        n.pinned = !n.pinned;
+        saveState();
+        renderNotesAndReadings();
+      }
+    }
+
+    function deleteNote(id) {
+      state.notes = state.notes.filter(n => n.id !== id);
+      saveState();
+      renderNotesAndReadings();
+    }
+
+    function cycleReadingStatus(id) {
+      const r = state.readings.find(item => item.id === id);
+      if (r) {
+        r.status = r.status === "Belum Dibaca" ? "Sedang Dibaca" : r.status === "Sedang Dibaca" ? "Selesai" : "Belum Dibaca";
+        if (r.status === "Selesai") addXP(20, "Literatur & Riset", `Menyelesaikan bacaan: ${r.title} (${r.author})`);
+        saveState();
+        renderNotesAndReadings();
+        renderLogbook();
+      }
+    }
+
+    function deleteReading(id) {
+      state.readings = state.readings.filter(r => r.id !== id);
+      saveState();
+      renderNotesAndReadings();
+    }
+
+    /* ==================== ACTIVITIES & CAREER ==================== */
+    function renderActivities() {
+      const cols = { seleksi: [], aktif: [], selesai: [] };
+      state.activities.forEach(a => {
+        if (cols[a.status]) cols[a.status].push(a);
+      });
+
+      ["seleksi", "aktif", "selesai"].forEach(st => {
+        document.getElementById(`act-count-${st}`).textContent = cols[st].length;
+        document.getElementById(`act-col-${st}`).innerHTML = cols[st].map(a => `
+          <div class="p-4 rounded-2xl bg-cream border border-stoneBorder space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-extrabold text-sm text-charcoal">${a.name}</div>
+                <div class="text-xs font-bold text-terracotta">${a.role}</div>
+              </div>
+              <span class="font-mono-code text-[10px] text-mutedInk shrink-0">${a.period}</span>
+            </div>
+            <p class="text-xs text-mutedInk leading-relaxed">${a.desc}</p>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-stoneBorder">
+              <select onchange="changeActivityStatus('${a.id}', this.value)" class="px-2 py-1 rounded-lg bg-paper border border-stoneBorder text-[11px] font-bold">
+                <option value="seleksi" ${a.status === 'seleksi' ? 'selected' : ''}>Seleksi</option>
+                <option value="aktif" ${a.status === 'aktif' ? 'selected' : ''}>Aktif</option>
+                <option value="selesai" ${a.status === 'selesai' ? 'selected' : ''}>Selesai</option>
+              </select>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="syncActivityToLogbook('${a.id}')" class="px-2.5 py-1 rounded-lg bg-sageLight text-sage text-[10px] font-bold hover:bg-sage hover:text-white transition">
+                  Kirim Log
+                </button>
+                <button type="button" onclick="deleteActivity('${a.id}')" class="manage-only px-2 py-1 rounded-lg bg-red-600 text-white text-[10px] font-bold">Hapus</button>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      });
+    }
+
+    function changeActivityStatus(id, newStatus) {
+      const a = state.activities.find(item => item.id === id);
+      if (a) {
+        a.status = newStatus;
+        saveState();
+        renderActivities();
+      }
+    }
+
+    function syncActivityToLogbook(id) {
+      const a = state.activities.find(item => item.id === id);
+      if (a) {
+        addXP(40, "Organisasi & Magang", `${a.name} — ${a.role} (${a.period})`);
+        saveState();
+        renderLogbook();
+        renderProfile();
+        showToast("Aktivitas ditambahkan ke Logbook (+40 XP)");
+      }
+    }
+
+    function deleteActivity(id) {
+      state.activities = state.activities.filter(a => a.id !== id);
+      saveState();
+      renderActivities();
+    }
+
+    /* ==================== DANA KIP & EDITABLE POCKETS ==================== */
+    function renderKipAndAttendance() {
+      const totalAllocated = state.kip.pockets.reduce((s, p) => s + Number(p.allocated || 0), 0);
+      document.getElementById("kip-monthly-total").textContent = `Rp ${totalAllocated.toLocaleString("id-ID")}`;
+
+      document.getElementById("kip-wallets-stack").innerHTML = state.kip.pockets.map(p => {
+        return `
+          <div class="wallet-stack-item p-4 text-white shadow-md flex items-center justify-between" style="background-color: ${p.color}">
+            <div>
+              <div class="text-xs font-bold opacity-90">${p.name}</div>
+              <div class="font-mono-code text-lg font-extrabold">Rp ${Number(p.allocated).toLocaleString("id-ID")}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="openEditPocketModal('${p.id}')" class="px-2.5 py-1 rounded-lg bg-white/20 text-white text-[10px] font-bold">Edit</button>
+              <button type="button" onclick="deletePocket('${p.id}')" class="manage-only px-2 py-1 rounded-lg bg-black/30 text-white text-[10px] font-bold">Hapus</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("kip-expenses-list").innerHTML = state.kip.expenses.length ? state.kip.expenses.map(ex => `
+        <div class="p-3 rounded-2xl bg-cream border border-stoneBorder flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="font-bold text-xs text-charcoal truncate">${ex.note}</div>
+            <div class="flex flex-wrap items-center gap-1.5 font-mono-code text-[10px] text-mutedInk mt-0.5">
+              <span>${ex.date} • ${ex.pocket}</span>
+              ${ex.proofUrl ? `<a href="${ex.proofUrl}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded-full bg-sageLight text-sage font-bold hover:underline">Lihat Bukti</a>` : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="font-mono-code text-xs font-bold text-terracotta">-Rp ${Number(ex.amount).toLocaleString("id-ID")}</span>
+            <button type="button" onclick="deleteExpense('${ex.id}')" class="manage-only px-2 py-0.5 rounded-lg bg-red-600 text-white text-[10px] font-bold">x</button>
+          </div>
+        </div>
+      `).join("") : `<div class="text-xs text-mutedInk py-6 text-center">Belum ada transaksi tercatat.</div>`;
+
+      document.getElementById("attendance-grid").innerHTML = state.attendance.map(att => {
+        const maxAbsent = Math.floor(att.total * 0.25);
+        const safeLeft = Math.max(0, maxAbsent - att.absent);
+        const pct = Math.round(((att.total - att.absent) / att.total) * 100);
+        return `
+          <div class="p-4 rounded-2xl bg-cream border border-stoneBorder space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-mono-code text-[10px] font-bold text-terracotta">${att.code}</div>
+                <div class="font-extrabold text-sm text-charcoal">${att.name}</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-full font-mono-code text-[11px] font-bold ${safeLeft > 0 ? 'bg-sageLight text-sage' : 'bg-red-100 text-red-700'}">
+                Sisa Izin: ${safeLeft}x
+              </span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-paper overflow-hidden">
+              <div class="h-full bg-sage" style="width: ${pct}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-mutedInk">
+              <span>Hadir: ${att.attended}/${att.total} • Absen: ${att.absent}x</span>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="incrementAbsent('${att.id}')" class="px-2 py-0.5 rounded-lg bg-paper border border-stoneBorder font-bold text-charcoal hover:bg-terracotta hover:text-white transition">+1 Absen</button>
+                <button type="button" onclick="deleteAttendance('${att.id}')" class="manage-only px-2 py-0.5 rounded-lg bg-red-600 text-white font-bold">x</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function incrementAbsent(id) {
+      const a = state.attendance.find(item => item.id === id);
+      if (a) {
+        a.absent += 1;
+        saveState();
+        renderKipAndAttendance();
+      }
+    }
+
+    function deletePocket(id) {
+      state.kip.pockets = state.kip.pockets.filter(p => p.id !== id);
+      saveState();
+      renderKipAndAttendance();
+      renderDashboard();
+    }
+
+    function deleteExpense(id) {
+      state.kip.expenses = state.kip.expenses.filter(e => e.id !== id);
+      saveState();
+      renderKipAndAttendance();
+    }
+
+    function deleteAttendance(id) {
+      state.attendance = state.attendance.filter(a => a.id !== id);
+      saveState();
+      renderKipAndAttendance();
+    }
+
+    /* ==================== CALENDAR & INTEGRATED TASKS ==================== */
+    const MONTH_NAMES_ID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+    function getUnifiedCalendarItems() {
+      const manualAgendas = state.agendas.map(ag => ({
+        id: ag.id,
+        title: ag.title,
+        date: ag.date,
+        semester: ag.semester || 1,
+        layerId: ag.layerId,
+        done: ag.done,
+        isTask: false
+      }));
+
+      const courseTasksAsAgendas = state.courses.flatMap(c => c.tasks.map(t => ({
+        id: `task-${c.id}-${t.id}`,
+        title: `[Tugas ${c.code}] ${t.title}`,
+        date: t.due,
+        semester: c.semester,
+        layerId: 'lay-kuliah',
+        done: t.done,
+        isTask: true,
+        courseId: c.id,
+        taskId: t.id
+      })));
+
+      return [...manualAgendas, ...courseTasksAsAgendas].sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+
+    function changeCalendarMonth(delta) {
+      let y = state.ui.calYear ?? 2026;
+      let m = state.ui.calMonth ?? 10;
+      m += delta;
+      if (m < 0) { m = 11; y -= 1; }
+      if (m > 11) { m = 0; y += 1; }
+      state.ui.calYear = y;
+      state.ui.calMonth = m;
+      saveState();
+      renderCalendar();
+    }
+
+    function selectCalendarDate(dateStr) {
+      state.ui.selectedDate = state.ui.selectedDate === dateStr ? "" : dateStr;
+      saveState();
+      renderCalendar();
+    }
+
+    function resetCalendarSelection() {
+      state.ui.selectedDate = "";
+      saveState();
+      renderCalendar();
+    }
+
+    function addQuickCampusTodo(e) {
+      e.preventDefault();
+      const input = document.getElementById("quick-todo-title");
+      const title = input.value.trim();
+      if (!title) return;
+      const fallbackDate = state.ui.selectedDate || new Date().toISOString().slice(0, 10);
+      state.agendas.unshift({
+        id: "ag-" + Date.now(),
+        title,
+        date: fallbackDate,
+        semester: Number(state.ui.activeSemester) || 1,
+        layerId: state.calendarLayers[0]?.id || "lay-kuliah",
+        done: false
+      });
+      input.value = "";
+      saveState();
+      renderCalendar();
+      renderDashboard();
+      showToast(`Todo kampus ditambahkan ke ${fallbackDate}`);
+    }
+
+    function renderCalendar() {
+      document.getElementById("calendar-layers-bar").innerHTML = state.calendarLayers.map(lay => `
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cream border border-stoneBorder text-xs font-bold">
+          <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${lay.color}"></span>
+          <span>${lay.name}</span>
+          <button type="button" onclick="deleteCalendarLayer('${lay.id}')" class="manage-only text-red-600 font-extrabold ml-1">x</button>
+        </div>
+      `).join("");
+
+      const allItems = getUnifiedCalendarItems();
+      const year = state.ui.calYear ?? 2026;
+      const month = state.ui.calMonth ?? 10;
+      const selectedDate = state.ui.selectedDate || "";
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      document.getElementById("calendar-month-title").textContent = `${MONTH_NAMES_ID[month]} ${year}`;
+
+      const firstDayIdx = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let cellsHtml = "";
+      for (let i = 0; i < firstDayIdx; i++) {
+        cellsHtml += `<div class="h-12 rounded-2xl bg-paper/40"></div>`;
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const mm = String(month + 1).padStart(2, "0");
+        const dd = String(d).padStart(2, "0");
+        const dateKey = `${year}-${mm}-${dd}`;
+        const dayEvents = allItems.filter(it => it.date === dateKey);
+        const isSelected = selectedDate === dateKey;
+        const isToday = todayStr === dateKey;
+
+        const dotsHtml = dayEvents.slice(0, 3).map(ev => {
+          const lay = state.calendarLayers.find(l => l.id === ev.layerId) || { color: "#4B7361" };
+          return `<span class="w-1.5 h-1.5 rounded-full" style="background-color: ${isSelected ? '#FFFFFF' : lay.color}"></span>`;
+        }).join("");
+
+        cellsHtml += `
+          <button type="button" onclick="selectCalendarDate('${dateKey}')"
+            class="h-12 rounded-2xl border flex flex-col items-center justify-center gap-1 transition ${isSelected ? 'bg-charcoal text-white border-charcoal shadow-sm' : isToday ? 'bg-terracotta/15 text-terracotta border-terracotta font-extrabold' : 'bg-paper text-charcoal border-stoneBorder hover:bg-sand'}">
+            <span class="font-mono-code text-xs font-bold">${d}</span>
+            <div class="flex items-center gap-0.5 h-1.5">${dotsHtml}</div>
+          </button>
+        `;
+      }
+      document.getElementById("calendar-month-grid").innerHTML = cellsHtml;
+
+      const visibleItems = selectedDate ? allItems.filter(it => it.date === selectedDate) : allItems;
+      document.getElementById("calendar-selected-label").textContent = selectedDate
+        ? `Agenda & Todo (${selectedDate})`
+        : "Semua Jadwal & Todo Kampus";
+      document.getElementById("calendar-item-count").textContent = visibleItems.length;
+
+      document.getElementById("calendar-agenda-list").innerHTML = visibleItems.length ? visibleItems.map(item => {
+        const layer = state.calendarLayers.find(l => l.id === item.layerId) || { name: "Akademik", color: "#4B7361" };
+        return `
+          <div class="p-3 rounded-2xl bg-paper border border-stoneBorder flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleCalendarItemDone('${item.id}', ${item.isTask}, '${item.courseId || ''}', '${item.taskId || ''}')" class="w-4 h-4 rounded accent-charcoal shrink-0" />
+              <div class="min-w-0">
+                <div class="font-bold text-xs text-charcoal truncate ${item.done ? 'line-through opacity-55' : ''}">${item.title}</div>
+                <div class="font-mono-code text-[10px] text-mutedInk">${item.date} • ${layer.name}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-mono-code font-bold text-white" style="background-color: ${layer.color}">
+                ${item.done ? 'Selesai' : 'Aktif'}
+              </span>
+              ${!item.isTask ? `<button type="button" onclick="deleteAgenda('${item.id}')" class="manage-only px-2 py-0.5 rounded-lg bg-red-600 text-white text-[10px] font-bold">x</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join("") : `<div class="text-xs text-mutedInk py-8 text-center">Tidak ada agenda pada tanggal ini.</div>`;
+    }
+
+    function toggleCalendarItemDone(id, isTask, courseId, taskId) {
+      if (isTask) {
+        toggleCourseTask(courseId, taskId);
+      } else {
+        const ag = state.agendas.find(item => item.id === id);
+        if (ag) {
+          ag.done = !ag.done;
+          if (ag.done) {
+            addXP(20, "Agenda Akademik", `Menyelesaikan agenda: ${ag.title}`);
+            showToast("Agenda selesai (+20 XP)");
+          }
+          saveState();
+          renderCalendar();
+          renderDashboard();
+          renderLogbook();
+        }
+      }
+    }
+
+    function deleteCalendarLayer(layerId) {
+      state.calendarLayers = state.calendarLayers.filter(l => l.id !== layerId);
+      state.agendas = state.agendas.filter(a => a.layerId !== layerId);
+      saveState();
+      renderCalendar();
+      renderDashboard();
+    }
+
+    function deleteAgenda(id) {
+      state.agendas = state.agendas.filter(a => a.id !== id);
+      saveState();
+      renderCalendar();
+      renderDashboard();
+    }
+
+    /* ==================== LOGBOOK & REPORT ==================== */
+    function renderLogbook() {
+      document.getElementById("logbook-tbody").innerHTML = state.logbook.length ? state.logbook.map(row => `
+        <tr>
+          <td class="py-2.5 px-3 font-mono-code text-[11px] text-mutedInk whitespace-nowrap">${row.date}</td>
+          <td class="py-2.5 px-3 font-bold text-charcoal whitespace-nowrap">${row.category}</td>
+          <td class="py-2.5 px-3 text-charcoal">${row.desc}</td>
+          <td class="py-2.5 px-3 whitespace-nowrap">
+            ${row.proofUrl ? `<a href="${row.proofUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-0.5 rounded-full bg-sageLight text-sage font-mono-code text-[10px] font-bold hover:underline">Lihat Bukti</a>` : `<span class="text-mutedInk font-mono-code text-[10px]">-</span>`}
+          </td>
+          <td class="py-2.5 px-3 font-mono-code font-bold text-sage whitespace-nowrap">${row.points}</td>
+          <td class="py-2.5 px-3 manage-only">
+            <button type="button" onclick="deleteLogbookEntry('${row.id}')" class="px-2 py-0.5 rounded-lg bg-red-600 text-white text-[10px] font-bold">Hapus</button>
+          </td>
+        </tr>
+      `).join("") : `<tr><td colspan="6" class="py-6 text-center text-mutedInk">Belum ada catatan logbook.</td></tr>`;
+    }
+
+    function deleteLogbookEntry(id) {
+      state.logbook = state.logbook.filter(l => l.id !== id);
+      saveState();
+      renderLogbook();
+    }
+
+    function exportLogbookCSV() {
+      const rows = [["Tanggal", "Kategori", "Uraian", "Tautan Bukti", "Poin/Nominal"], ...state.logbook.map(l => [l.date, l.category, `"${l.desc.replace(/"/g, '""')}"`, l.proofUrl || "-", l.points])];
+      const csv = rows.map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Logbook_KIPK_${state.profile.name}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("File CSV Logbook diunduh");
+    }
+
+    /* ==================== MODALS ==================== */
+    function openModal(title, formHtml, context) {
+      modalContext = context;
+      document.getElementById("modal-title").textContent = title;
+      document.getElementById("modal-form").innerHTML = formHtml;
+      document.getElementById("app-modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("app-modal").classList.add("hidden");
+      modalContext = null;
+    }
+
+    function openProfileEditModal() {
+      const p = state.profile;
+      const av = p.avatar || {};
+      const validStyles = ["curtain_long", "wavy_side", "ponytail", "wolf_cut", "space_buns", "low_side_bun", "twin_braids", "layered_bob"];
+      const currentStyle = validStyles.includes(av.hairstyle) ? av.hairstyle : "curtain_long";
+      const hairColors = [
+        { hex: "#2C221E", label: "Jet Black" },
+        { hex: "#4A3222", label: "Espresso" },
+        { hex: "#6E4730", label: "Chestnut" },
+        { hex: "#8C5A3C", label: "Caramel Brown" },
+        { hex: "#7A6A62", label: "Ash Taupe" }
+      ];
+      const outfitColors = [
+        { hex: "#C86D51", label: "Terracotta" },
+        { hex: "#4B7361", label: "Sage Green" },
+        { hex: "#D46A84", label: "Soft Rose" },
+        { hex: "#3B4252", label: "Charcoal Navy" },
+        { hex: "#7E8CE0", label: "Periwinkle" }
+      ];
+      openModal("Edit Profil, PIN & Studio Avatar", `
+        <div class="flex items-center gap-3 p-3 rounded-2xl bg-cream border border-stoneBorder">
+          <div id="modal-avatar-preview" class="w-20 h-20 rounded-2xl bg-paper border border-stoneBorder overflow-hidden shrink-0">
+            ${getFeminineAvatarSVG()}
+          </div>
+          <div class="text-[11px] text-mutedInk leading-relaxed">
+            Pilih variasi gaya rambut, model busana, ekspresi wajah, dan warna kustom sesukamu.
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Nama Mahasiswa</label>
+            <input type="text" name="name" value="${p.name}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">NIM</label>
+            <input type="text" name="nim" value="${p.nim}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Status Tahap Studi</label>
+            <input type="text" name="stage" value="${p.stage}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">PIN Akses (4 Digit)</label>
+            <input type="text" name="pin" maxlength="4" pattern="[0-9]{4}" value="${p.pin || '2341'}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="flex items-center gap-2 font-bold cursor-pointer">
+            <input type="checkbox" name="pinEnabled" ${p.pinEnabled !== false ? 'checked' : ''} class="w-4 h-4 accent-terracotta" />
+            <span>Aktifkan Kunci PIN saat membuka aplikasi</span>
+          </label>
+          <label class="flex items-center gap-2 font-bold cursor-pointer">
+            <input type="checkbox" name="showPinHint" ${p.showPinHint !== false ? 'checked' : ''} class="w-4 h-4 accent-terracotta" />
+            <span>Tampilkan keterangan / hint PIN di bawah kotak sandi</span>
+          </label>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Gaya Rambut</label>
+            <select name="hairstyle" onchange="previewAvatarDraft(this.form)" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+              <option value="curtain_long" ${currentStyle === 'curtain_long' ? 'selected' : ''}>Long Straight + Curtain Bangs</option>
+              <option value="wavy_side" ${currentStyle === 'wavy_side' ? 'selected' : ''}>Soft Wavy + Side Bangs</option>
+              <option value="wolf_cut" ${currentStyle === 'wolf_cut' ? 'selected' : ''}>Butterfly Wolf Cut Layer</option>
+              <option value="ponytail" ${currentStyle === 'ponytail' ? 'selected' : ''}>High Ponytail + Pita</option>
+              <option value="space_buns" ${currentStyle === 'space_buns' ? 'selected' : ''}>Double Space Buns + Pita</option>
+              <option value="low_side_bun" ${currentStyle === 'low_side_bun' ? 'selected' : ''}>Korean Low Side Bun</option>
+              <option value="twin_braids" ${currentStyle === 'twin_braids' ? 'selected' : ''}>Kepang Dua (Twin Braids)</option>
+              <option value="layered_bob" ${currentStyle === 'layered_bob' ? 'selected' : ''}>Layered Short Bob</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Ekspresi Wajah</label>
+            <select name="expression" onchange="previewAvatarDraft(this.form)" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+              <option value="sweet_smile" ${(av.expression || 'sweet_smile') === 'sweet_smile' ? 'selected' : ''}>Senyum Manis (Sweet Smile)</option>
+              <option value="sparkly_happy" ${av.expression === 'sparkly_happy' ? 'selected' : ''}>Ceria Berbinar (Sparkly)</option>
+              <option value="playful_wink" ${av.expression === 'playful_wink' ? 'selected' : ''}>Kedip Lucu (Playful Wink)</option>
+              <option value="calm_focus" ${av.expression === 'calm_focus' ? 'selected' : ''}>Fokus Kalem (Poised)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Model Baju / Busana Kampus</label>
+          <select name="outfitStyle" onchange="previewAvatarDraft(this.form)" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+            <option value="blouse_ribbon" ${(av.outfitStyle || 'blouse_ribbon') === 'blouse_ribbon' ? 'selected' : ''}>Blouse Kerah Pita Manis</option>
+            <option value="almamater_ugm" ${av.outfitStyle === 'almamater_ugm' ? 'selected' : ''}>Jas Almamater / Blazer Formal</option>
+            <option value="field_vest" ${av.outfitStyle === 'field_vest' ? 'selected' : ''}>Vest Lapangan Etnografi (Multi-Pocket)</option>
+            <option value="cozy_sweater" ${av.outfitStyle === 'cozy_sweater' ? 'selected' : ''}>Knitwear Sweater Hangat</option>
+            <option value="sailor_collar" ${av.outfitStyle === 'sailor_collar' ? 'selected' : ''}>Kerah Sailor Kasual</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold block mb-1.5">Warna Rambut (+ Kustom)</label>
+            <div class="flex flex-wrap items-center gap-1.5">
+              ${hairColors.map(hc => `
+                <button type="button" onclick="selectAvatarSwatch(this.form, 'hairColor', '${hc.hex}')" title="${hc.label}"
+                  class="w-6 h-6 rounded-full border-2 border-white ring-1 ring-stone-300 hover:scale-110 transition" style="background-color: ${hc.hex}"></button>
+              `).join("")}
+              <label class="w-6 h-6 rounded-full bg-cream border border-stoneBorder flex items-center justify-center cursor-pointer hover:bg-sand transition relative overflow-hidden" title="Pilih Warna Rambut Sendiri">
+                <span class="text-xs font-extrabold text-charcoal">+</span>
+                <input type="color" name="hairColor" value="${av.hairColor || '#2C221E'}" oninput="previewAvatarDraft(this.form)" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer" />
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="font-bold block mb-1.5">Warna Busana (+ Kustom)</label>
+            <div class="flex flex-wrap items-center gap-1.5">
+              ${outfitColors.map(oc => `
+                <button type="button" onclick="selectAvatarSwatch(this.form, 'outfitColor', '${oc.hex}')" title="${oc.label}"
+                  class="w-6 h-6 rounded-full border-2 border-white ring-1 ring-stone-300 hover:scale-110 transition" style="background-color: ${oc.hex}"></button>
+              `).join("")}
+              <label class="w-6 h-6 rounded-full bg-cream border border-stoneBorder flex items-center justify-center cursor-pointer hover:bg-sand transition relative overflow-hidden" title="Pilih Warna Baju Sendiri">
+                <span class="text-xs font-extrabold text-charcoal">+</span>
+                <input type="color" name="outfitColor" value="${av.outfitColor || '#C86D51'}" oninput="previewAvatarDraft(this.form)" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer" />
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3 pt-1">
+          <label class="flex items-center gap-1.5 font-bold cursor-pointer">
+            <input type="checkbox" name="hasHairClip" ${av.hasHairClip !== false ? 'checked' : ''} onchange="previewAvatarDraft(this.form)" class="w-4 h-4 accent-terracotta" />
+            <span>Jepit Emas</span>
+          </label>
+          <label class="flex items-center gap-1.5 font-bold cursor-pointer">
+            <input type="checkbox" name="hasCamera" ${av.hasCamera !== false ? 'checked' : ''} onchange="previewAvatarDraft(this.form)" class="w-4 h-4 accent-terracotta" />
+            <span>Kamera</span>
+          </label>
+          <label class="flex items-center gap-1.5 font-bold cursor-pointer">
+            <input type="checkbox" name="hasNotebook" ${av.hasNotebook !== false ? 'checked' : ''} onchange="previewAvatarDraft(this.form)" class="w-4 h-4 accent-terracotta" />
+            <span>Buku Catatan</span>
+          </label>
+          <label class="flex items-center gap-1.5 font-bold cursor-pointer">
+            <input type="checkbox" name="hasGlasses" ${av.hasGlasses ? 'checked' : ''} onchange="previewAvatarDraft(this.form)" class="w-4 h-4 accent-terracotta" />
+            <span>Kacamata</span>
+          </label>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold mt-2">Simpan Perubahan</button>
+      `, { type: "profile" });
+    }
+
+    function selectAvatarSwatch(form, fieldName, hex) {
+      if (form && form.elements[fieldName]) {
+        form.elements[fieldName].value = hex;
+        previewAvatarDraft(form);
+      }
+    }
+
+    function previewAvatarDraft(form) {
+      const fd = new FormData(form);
+      const prevAvatar = { ...state.profile.avatar };
+      state.profile.avatar = {
+        hairstyle: fd.get("hairstyle") || "curtain_long",
+        hairColor: fd.get("hairColor") || "#2C221E",
+        outfitStyle: fd.get("outfitStyle") || "blouse_ribbon",
+        outfitColor: fd.get("outfitColor") || "#C86D51",
+        expression: fd.get("expression") || "sweet_smile",
+        hasCamera: !!fd.get("hasCamera"),
+        hasNotebook: !!fd.get("hasNotebook"),
+        hasGlasses: !!fd.get("hasGlasses"),
+        hasHairClip: !!fd.get("hasHairClip")
+      };
+      const box = document.getElementById("modal-avatar-preview");
+      if (box) box.innerHTML = getFeminineAvatarSVG();
+      state.profile.avatar = prevAvatar;
+    }
+
+    function openCourseModal() {
+      openModal("Tambah Mata Kuliah Baru", `
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Kode Matkul</label>
+            <input type="text" name="code" placeholder="ANT-102" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">SKS</label>
+            <input type="number" name="sks" value="3" min="1" max="6" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Nama Mata Kuliah</label>
+          <input type="text" name="name" placeholder="Metode Penelitian Etnografi" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Semester</label>
+          <select name="semester" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+            ${[1,2,3,4,5,6,7,8].map(s => `<option value="${s}" ${Number(state.ui.activeSemester) === s ? 'selected' : ''}>Semester ${s}</option>`).join("")}
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-terracotta text-white font-bold">Simpan Mata Kuliah</button>
+      `, { type: "course-add" });
+    }
+
+    function editCourse(courseId) {
+      const c = state.courses.find(item => item.id === courseId);
+      if (!c) return;
+      openModal("Edit Mata Kuliah", `
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Kode Matkul</label>
+            <input type="text" name="code" value="${c.code}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">SKS</label>
+            <input type="number" name="sks" value="${c.sks}" min="1" max="6" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Nama Mata Kuliah</label>
+          <input type="text" name="name" value="${c.name}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Perbarui</button>
+      `, { type: "course-edit", id: courseId });
+    }
+
+    function openStickyNoteModal() {
+      openModal("Buat Sticky Note Baru", `
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Kode Matkul</label>
+            <input type="text" name="courseCode" placeholder="ANT-101" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Tag Topik</label>
+            <input type="text" name="tag" placeholder="Teori / Fieldnotes" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Judul Catatan</label>
+          <input type="text" name="title" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Isi Catatan</label>
+          <textarea name="content" rows="3" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder"></textarea>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Warna Kertas</label>
+          <select name="color" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+            <option value="butter">Kuning Pastel</option>
+            <option value="rose">Merah Muda Pastel</option>
+            <option value="sage">Hijau Sage</option>
+            <option value="sky">Biru Lembut</option>
+            <option value="sand">Krem Hangat</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-terracotta text-white font-bold">Tempel Catatan</button>
+      `, { type: "note-add" });
+    }
+
+    function openReadingModal() {
+      openModal("Tambah Daftar Bacaan", `
+        <div>
+          <label class="font-bold block mb-1">Judul Buku / Jurnal</label>
+          <input type="text" name="title" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Penulis</label>
+          <input type="text" name="author" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Kutipan / Poin Penting</label>
+          <textarea name="quote" rows="2" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder"></textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Simpan Bacaan</button>
+      `, { type: "reading-add" });
+    }
+
+    function openActivityModal() {
+      openModal("Tambah UKM, Organisasi, atau Magang", `
+        <div>
+          <label class="font-bold block mb-1">Nama UKM / Instansi</label>
+          <input type="text" name="name" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Peran / Divisi</label>
+            <input type="text" name="role" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Periode</label>
+            <input type="text" name="period" placeholder="2026 - 2027" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Status</label>
+          <select name="status" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+            <option value="seleksi">Tahap Daftar / Seleksi</option>
+            <option value="aktif">Aktif Menjabat / Riset</option>
+            <option value="selesai">Selesai (Portofolio)</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Deskripsi</label>
+          <textarea name="desc" rows="2" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder"></textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-terracotta text-white font-bold">Simpan Aktivitas</button>
+      `, { type: "activity-add" });
+    }
+
+    function openExpenseModal() {
+      openModal("Catat Slip Pengeluaran KIP-K", `
+        <div>
+          <label class="font-bold block mb-1">Pos Anggaran</label>
+          <select name="pocket" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+            ${state.kip.pockets.map(p => `<option value="${p.name}">${p.name}</option>`).join("")}
+          </select>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Keterangan Transaksi</label>
+          <input type="text" name="note" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Nominal (Rp)</label>
+          <input type="number" name="amount" min="1000" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Tautan Bukti / Struk Google Drive (Opsional)</label>
+          <input type="url" name="proofUrl" placeholder="https://drive.google.com/..." class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-terracotta text-white font-bold">Catat & Sinkron ke Logbook</button>
+      `, { type: "expense-add" });
+    }
+
+    function openPocketModal() {
+      openModal("Tambah Pos Anggaran KIP", `
+        <div>
+          <label class="font-bold block mb-1">Nama Pos Anggaran</label>
+          <input type="text" name="name" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Nominal Alokasi (Rp)</label>
+          <input type="number" name="allocated" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Tambah Pos</button>
+      `, { type: "pocket-add" });
+    }
+
+    function openEditPocketModal(pocketId) {
+      const p = state.kip.pockets.find(item => item.id === pocketId);
+      if (!p) return;
+      openModal("Edit Pos Anggaran", `
+        <div>
+          <label class="font-bold block mb-1">Nama Pos</label>
+          <input type="text" name="name" value="${p.name}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Nominal Alokasi (Rp)</label>
+          <input type="number" name="allocated" value="${p.allocated}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Perbarui Pos</button>
+      `, { type: "pocket-edit", id: pocketId });
+    }
+
+    function openEditTotalBudgetModal() {
+      openModal("Atur Total Anggaran KIP", `
+        <div>
+          <label class="font-bold block mb-1">Total Dana KIP (Rp)</label>
+          <input type="number" name="totalBudget" value="${state.kip.totalBudget || 4200000}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Simpan Total</button>
+      `, { type: "total-budget-edit" });
+    }
+
+    function openAttendanceModal() {
+      openModal("Tambah Mata Kuliah Presensi", `
+        <div>
+          <label class="font-bold block mb-1">Kode Matkul</label>
+          <input type="text" name="code" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Nama Mata Kuliah</label>
+          <input type="text" name="name" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Simpan</button>
+      `, { type: "attendance-add" });
+    }
+
+    function openFieldworkModal() {
+      openModal("Tambah Proyek Fieldwork & Dokumenter", `
+        <div>
+          <label class="font-bold block mb-1">Judul Riset / Dokumenter</label>
+          <input type="text" name="title" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Lokasi Lapangan</label>
+            <input type="text" name="location" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Tahap</label>
+            <input type="text" name="stage" value="Pra-Produksi" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Consent</label>
+          <input type="text" name="consent" value="Dalam Proses" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Catatan & Timecode</label>
+          <textarea name="notes" rows="2" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder"></textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Buat Proyek</button>
+      `, { type: "fieldwork-add" });
+    }
+
+    function openAgendaModal() {
+      const defaultDate = state.ui.selectedDate || new Date().toISOString().slice(0, 10);
+      openModal("Tambah Agenda / Todo Kalender", `
+        <div>
+          <label class="font-bold block mb-1">Judul Agenda / Todo</label>
+          <input type="text" name="title" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Tanggal</label>
+            <input type="date" name="date" value="${defaultDate}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Semester</label>
+            <select name="semester" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+              ${[1,2,3,4,5,6,7,8].map(s => `<option value="${s}" ${Number(state.ui.activeSemester) === s ? 'selected' : ''}>Semester ${s}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Layer Kalender</label>
+          <select name="layerId" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder">
+            ${state.calendarLayers.map(l => `<option value="${l.id}">${l.name}</option>`).join("")}
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-terracotta text-white font-bold">Simpan Agenda</button>
+      `, { type: "agenda-add" });
+    }
+
+    function openLayerModal() {
+      openModal("Tambah Layer Kalender", `
+        <div>
+          <label class="font-bold block mb-1">Nama Layer</label>
+          <input type="text" name="name" placeholder="Riset Lapangan / UKM" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Warna Penanda</label>
+          <input type="color" name="color" value="#4B7361" class="w-full h-10 rounded-xl bg-cream border border-stoneBorder cursor-pointer" />
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Simpan Layer</button>
+      `, { type: "layer-add" });
+    }
+
+    function openLogbookModal() {
+      openModal("Tambah Entri Logbook Manual", `
+        <div>
+          <label class="font-bold block mb-1">Kategori Laporan</label>
+          <input type="text" name="category" placeholder="Akademik / Pengeluaran / Riset" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Uraian Kegiatan</label>
+          <textarea name="desc" rows="2" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Poin / Nominal</label>
+            <input type="text" name="points" placeholder="+25 XP atau Rp 50.000" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-mono-code" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Tautan Bukti (Opsional)</label>
+            <input type="url" name="proofUrl" placeholder="https://drive.google.com/..." class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder" />
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Tambah ke Logbook</button>
+      `, { type: "logbook-add" });
+    }
+
+    function handleModalSubmit(e) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const data = Object.fromEntries(fd.entries());
+
+      if (modalContext.type === "profile") {
+        state.profile.name = data.name;
+        state.profile.nim = data.nim;
+        state.profile.stage = data.stage;
+        state.profile.pin = data.pin || "2341";
+        state.profile.pinEnabled = !!fd.get("pinEnabled");
+        state.profile.showPinHint = !!fd.get("showPinHint");
+        state.profile.avatar = {
+          hairstyle: data.hairstyle || "curtain_long",
+          hairColor: data.hairColor || "#2C221E",
+          outfitStyle: data.outfitStyle || "blouse_ribbon",
+          outfitColor: data.outfitColor || "#C86D51",
+          expression: data.expression || "sweet_smile",
+          hasCamera: !!fd.get("hasCamera"),
+          hasNotebook: !!fd.get("hasNotebook"),
+          hasGlasses: !!fd.get("hasGlasses"),
+          hasHairClip: !!fd.get("hasHairClip")
+        };
+      } else if (modalContext.type === "fresh-start-reset") {
+        state.courses = [];
+        state.notes = [];
+        state.readings = [];
+        state.activities = [];
+        state.kip.expenses = [];
+        state.attendance = [];
+        state.agendas = [];
+        state.logbook = [];
+        state.profile.xp = 0;
+      } else if (modalContext.type === "course-add") {
+        state.courses.push({
+          id: "c-" + Date.now(),
+          semester: Number(data.semester),
+          code: data.code,
+          name: data.name,
+          sks: Number(data.sks),
+          grade: "-",
+          colorIdx: state.courses.length,
+          tasks: []
+        });
+      } else if (modalContext.type === "course-edit") {
+        const c = state.courses.find(item => item.id === modalContext.id);
+        if (c) {
+          c.code = data.code;
+          c.name = data.name;
+          c.sks = Number(data.sks);
+        }
+      } else if (modalContext.type === "note-add") {
+        state.notes.unshift({
+          id: "n-" + Date.now(),
+          courseCode: data.courseCode,
+          tag: data.tag,
+          title: data.title,
+          content: data.content,
+          color: data.color,
+          pinned: false
+        });
+      } else if (modalContext.type === "reading-add") {
+        state.readings.unshift({
+          id: "r-" + Date.now(),
+          title: data.title,
+          author: data.author,
+          status: "Belum Dibaca",
+          quote: data.quote
+        });
+      } else if (modalContext.type === "activity-add") {
+        state.activities.unshift({
+          id: "a-" + Date.now(),
+          name: data.name,
+          role: data.role,
+          period: data.period,
+          status: data.status,
+          desc: data.desc
+        });
+      } else if (modalContext.type === "expense-add") {
+        const amt = Number(data.amount);
+        const proofUrl = (data.proofUrl || "").trim();
+        const today = new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+        state.kip.expenses.unshift({ id: "ex-" + Date.now(), date: today, pocket: data.pocket, note: data.note, amount: amt, proofUrl });
+        state.logbook.unshift({
+          id: "lg-" + Date.now(),
+          date: today,
+          category: `Slip KIP (${data.pocket})`,
+          desc: data.note,
+          points: `-Rp ${amt.toLocaleString("id-ID")}`,
+          proofUrl
+        });
+        addXP(15, "Keuangan KIP", `Slip Pengeluaran: ${data.note} (Rp ${amt.toLocaleString("id-ID")})`, proofUrl);
+      } else if (modalContext.type === "pocket-add") {
+        state.kip.pockets.push({ id: "p-" + Date.now(), name: data.name, allocated: Number(data.allocated), color: "#5D9C73" });
+      } else if (modalContext.type === "pocket-edit") {
+        const p = state.kip.pockets.find(item => item.id === modalContext.id);
+        if (p) {
+          p.name = data.name;
+          p.allocated = Number(data.allocated);
+        }
+      } else if (modalContext.type === "total-budget-edit") {
+        state.kip.totalBudget = Number(data.totalBudget);
+      } else if (modalContext.type === "attendance-add") {
+        state.attendance.push({ id: "att-" + Date.now(), code: data.code, name: data.name, total: 14, attended: 1, absent: 0 });
+      } else if (modalContext.type === "layer-add") {
+        state.calendarLayers.push({ id: "lay-" + Date.now(), name: data.name, color: data.color || "#4B7361" });
+      } else if (modalContext.type === "agenda-add") {
+        state.agendas.unshift({
+          id: "ag-" + Date.now(),
+          title: data.title,
+          date: data.date,
+          semester: Number(data.semester),
+          layerId: data.layerId,
+          done: false
+        });
+      } else if (modalContext.type === "logbook-add") {
+        const today = new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+        state.logbook.unshift({
+          id: "lg-" + Date.now(),
+          date: today,
+          category: data.category,
+          desc: data.desc,
+          points: data.points,
+          proofUrl: (data.proofUrl || "").trim()
+        });
+      }
+
+      closeModal();
+      saveState();
+      renderAll();
+      showToast("Data berhasil disimpan & disinkronkan");
+    }
+
+    /* ==================== POMODORO ==================== */
+    let pomoSeconds = 25 * 60;
+    let pomoInterval = null;
+    let isPomoRunning = false;
+
+    function openPomodoroModal() { document.getElementById("pomodoro-modal").classList.remove("hidden"); }
+    function closePomodoroModal() { document.getElementById("pomodoro-modal").classList.add("hidden"); }
+
+    function togglePomodoroTimer() {
+      const btn = document.getElementById("pomo-start-btn");
+      if (isPomoRunning) {
+        clearInterval(pomoInterval);
+        isPomoRunning = false;
+        btn.textContent = "Lanjutkan";
+      } else {
+        isPomoRunning = true;
+        btn.textContent = "Jeda";
+        pomoInterval = setInterval(() => {
+          if (pomoSeconds > 0) {
+            pomoSeconds--;
+            const m = String(Math.floor(pomoSeconds / 60)).padStart(2, "0");
+            const s = String(pomoSeconds % 60).padStart(2, "0");
+            document.getElementById("pomo-display").textContent = `${m}:${s}`;
+          } else {
+            clearInterval(pomoInterval);
+            isPomoRunning = false;
+            btn.textContent = "Mulai";
+            pomoSeconds = 25 * 60;
+            addXP(25, "Fokus Studi", "Menyelesaikan 1 sesi Pomodoro 25 menit");
+            saveState();
+            renderLogbook();
+            renderProfile();
+            showToast("Sesi Pomodoro selesai (+25 XP & Logbook Tercatat)");
+          }
+        }, 1000);
+      }
+    }
+
+    function resetPomodoroTimer() {
+      clearInterval(pomoInterval);
+      isPomoRunning = false;
+      pomoSeconds = 25 * 60;
+      document.getElementById("pomo-display").textContent = "25:00";
+      document.getElementById("pomo-start-btn").textContent = "Mulai";
+    }
+
+    /* ==================== KALKULATOR IPK & TARGET SKS ==================== */
+    function renderKalkulator() {
+      if (!Array.isArray(state.simCourses)) state.simCourses = [];
+
+      let gradedSks = 0, gradedPts = 0;
+      state.courses.forEach(c => {
+        const gp = GRADE_POINTS[c.grade];
+        const s = Number(c.sks) || 0;
+        if (gp !== null && gp !== undefined) {
+          gradedSks += s;
+          gradedPts += s * gp;
+        }
+      });
+
+      let simSks = 0, simPts = 0;
+      state.simCourses.forEach(sc => {
+        const gp = GRADE_POINTS[sc.grade];
+        const s = Number(sc.sks) || 0;
+        if (gp !== null && gp !== undefined) {
+          simSks += s;
+          simPts += s * gp;
+        }
+      });
+
+      const currentIpk = gradedSks > 0 ? (gradedPts / gradedSks) : 0;
+      const simIps = simSks > 0 ? (simPts / simSks) : 0;
+      const totalCombinedSks = gradedSks + simSks;
+      const projectedIpk = totalCombinedSks > 0 ? ((gradedPts + simPts) / totalCombinedSks) : 0;
+      const sisaSks = Math.max(0, 144 - totalCombinedSks);
+
+      document.getElementById("calc-current-ipk").textContent = currentIpk.toFixed(2);
+      document.getElementById("calc-current-sks").textContent = `${gradedSks} SKS Ternilai`;
+      document.getElementById("calc-sim-ips").textContent = simIps.toFixed(2);
+      document.getElementById("calc-sim-sks").textContent = `${simSks} SKS Simulasi`;
+      document.getElementById("calc-projected-ipk").textContent = projectedIpk.toFixed(2);
+      document.getElementById("calc-projected-sks").textContent = `Total ${totalCombinedSks} / 144 SKS`;
+      document.getElementById("calc-sisa-sks").textContent = `Sisa ${sisaSks} SKS menuju lulus`;
+
+      let predikat = "Perlu Peningkatan (< 3.00)";
+      if (projectedIpk >= 3.51) predikat = "Cum Laude (Dengan Pujian)";
+      else if (projectedIpk >= 3.01) predikat = "Sangat Memuaskan (Aman KIP-K)";
+      else if (projectedIpk >= 2.76) predikat = "Memuaskan";
+      document.getElementById("calc-predikat-badge").textContent = predikat;
+
+      const gradeKeys = Object.keys(GRADE_POINTS).filter(k => k !== "-");
+      document.getElementById("calc-sim-tbody").innerHTML = state.simCourses.length
+        ? state.simCourses.map(sc => {
+            const gp = GRADE_POINTS[sc.grade] || 0;
+            const bobot = (Number(sc.sks) || 0) * gp;
+            return `
+              <tr>
+                <td class="py-2 px-2">
+                  <input type="text" value="${sc.name}" onchange="updateSimRow('${sc.id}', 'name', this.value)"
+                    class="w-full px-2.5 py-1.5 rounded-xl bg-cream border border-stoneBorder font-semibold text-charcoal" />
+                </td>
+                <td class="py-2 px-2">
+                  <input type="number" min="1" max="8" value="${sc.sks}" onchange="updateSimRow('${sc.id}', 'sks', this.value)"
+                    class="w-full px-2.5 py-1.5 rounded-xl bg-cream border border-stoneBorder font-mono-code font-bold text-charcoal" />
+                </td>
+                <td class="py-2 px-2">
+                  <select onchange="updateSimRow('${sc.id}', 'grade', this.value)"
+                    class="w-full px-2.5 py-1.5 rounded-xl bg-cream border border-stoneBorder font-mono-code font-bold text-charcoal">
+                    ${gradeKeys.map(g => `<option value="${g}" ${sc.grade === g ? 'selected' : ''}>${g} (${GRADE_POINTS[g].toFixed(2)})</option>`).join("")}
+                  </select>
+                </td>
+                <td class="py-2 px-2 text-right font-mono-code font-bold text-sage">${bobot.toFixed(2)}</td>
+                <td class="py-2 px-2 text-center">
+                  <button type="button" onclick="removeSimRow('${sc.id}')" class="px-2 py-1 rounded-lg bg-red-100 hover:bg-red-600 text-red-700 hover:text-white font-bold transition">x</button>
+                </td>
+              </tr>
+            `;
+          }).join("")
+        : `<tr><td colspan="5" class="py-6 text-center text-mutedInk">Belum ada baris simulasi. Klik "+ Tambah Baris Simulasi" atau "Muat Matkul Belum Dinilai".</td></tr>`;
+
+      calculateTargetIpsNeeded();
+    }
+
+    function addSimCourseRow() {
+      state.simCourses.push({
+        id: "sim-" + Date.now(),
+        name: `Mata Kuliah Simulasi ${state.simCourses.length + 1}`,
+        sks: 3,
+        grade: "A"
+      });
+      saveState();
+      renderKalkulator();
+    }
+
+    function loadActualCoursesToSim() {
+      const ungraded = state.courses.filter(c => c.grade === "-" || GRADE_POINTS[c.grade] === null);
+      if (!ungraded.length) {
+        showToast("Semua mata kuliah di transkrip sudah memiliki nilai");
+        return;
+      }
+      state.simCourses = ungraded.map(c => ({
+        id: "sim-" + c.id,
+        name: `${c.code} — ${c.name}`,
+        sks: Number(c.sks) || 3,
+        grade: "A"
+      }));
+      saveState();
+      renderKalkulator();
+      showToast(`${ungraded.length} mata kuliah belum dinilai dimuat ke simulasi`);
+    }
+
+    function updateSimRow(id, field, val) {
+      const row = state.simCourses.find(r => r.id === id);
+      if (row) {
+        row[field] = field === "sks" ? Number(val) : val;
+        saveState();
+        renderKalkulator();
+      }
+    }
+
+    function removeSimRow(id) {
+      state.simCourses = state.simCourses.filter(r => r.id !== id);
+      saveState();
+      renderKalkulator();
+    }
+
+    function resetSimRows() {
+      state.simCourses = [];
+      saveState();
+      renderKalkulator();
+    }
+
+    function calculateTargetIpsNeeded() {
+      const goalInput = document.getElementById("target-ipk-goal");
+      const totalSksInput = document.getElementById("target-total-sks");
+      const resBox = document.getElementById("target-ips-result-box");
+      if (!goalInput || !totalSksInput || !resBox) return;
+
+      const targetIpk = parseFloat(goalInput.value) || 3.75;
+      const totalGradSks = parseInt(totalSksInput.value, 10) || 144;
+
+      let gradedSks = 0, gradedPts = 0;
+      state.courses.forEach(c => {
+        const gp = GRADE_POINTS[c.grade];
+        const s = Number(c.sks) || 0;
+        if (gp !== null && gp !== undefined) {
+          gradedSks += s;
+          gradedPts += s * gp;
+        }
+      });
+
+      const remainingSks = totalGradSks - gradedSks;
+      if (remainingSks <= 0) {
+        resBox.innerHTML = `<div class="text-xs font-bold text-charcoal">Seluruh ${totalGradSks} SKS sudah terpenuhi.</div>`;
+        return;
+      }
+
+      const requiredTotalPts = targetIpk * totalGradSks;
+      const neededRemainingPts = requiredTotalPts - gradedPts;
+      const neededAvgIps = neededRemainingPts / remainingSks;
+
+      if (neededAvgIps > 4.0) {
+        resBox.innerHTML = `
+          <div class="text-[11px] font-mono-code font-bold text-red-600">TARGET TERLALU TINGGI</div>
+          <div class="text-xs text-charcoal">Dibutuhkan rata-rata IPS <strong>${neededAvgIps.toFixed(2)}</strong> pada sisa ${remainingSks} SKS (maksimal 4.00).</div>
+        `;
+      } else if (neededAvgIps <= 0) {
+        resBox.innerHTML = `
+          <div class="text-[11px] font-mono-code font-bold text-sage">TARGET SUDAH TERLAMPAUI</div>
+          <div class="text-xs text-charcoal">IPK saat ini sudah mencukupi target ${targetIpk.toFixed(2)}.</div>
+        `;
+      } else {
+        resBox.innerHTML = `
+          <div class="text-[11px] font-mono-code font-bold text-terracotta">RATA-RATA IPS MINIMAL SISA ${remainingSks} SKS:</div>
+          <div class="text-2xl font-extrabold font-mono-code text-charcoal">${neededAvgIps.toFixed(2)}</div>
+          <div class="text-[11px] text-mutedInk">Pertahankan rata-rata nilai ini agar lulus dengan IPK ${targetIpk.toFixed(2)}.</div>
+        `;
+      }
+    }
+
+    function saveSimPlanToLogbook() {
+      const proj = document.getElementById("calc-projected-ipk")?.textContent || "0.00";
+      addXP(15, "Perencanaan Studi", `Menyimpan simulasi studi (Proyeksi IPK: ${proj})`);
+      saveState();
+      renderLogbook();
+      renderProfile();
+      showToast("Rencana studi dicatat ke Logbook (+15 XP)");
+    }
+
+    /* ==================== GENERATOR DRAFT PESAN DOSEN ==================== */
+    function renderDosenDraft() {
+      updateDosenDraftPreview();
+      if (!Array.isArray(state.savedDrafts)) state.savedDrafts = [];
+      const container = document.getElementById("saved-dosen-drafts-list");
+      if (!container) return;
+
+      container.innerHTML = state.savedDrafts.length
+        ? state.savedDrafts.map(d => `
+            <div class="p-4 rounded-2xl bg-cream border border-stoneBorder flex flex-col justify-between gap-2.5">
+              <div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-extrabold text-xs text-charcoal truncate">${d.subject}</span>
+                  <span class="font-mono-code text-[10px] text-mutedInk shrink-0">${d.date}</span>
+                </div>
+                <p class="text-[11px] text-mutedInk line-clamp-3 mt-1 whitespace-pre-line">${d.body}</p>
+              </div>
+              <div class="flex items-center gap-2 pt-2 border-t border-stoneBorder">
+                <button type="button" onclick="loadSavedDraftToEditor('${d.id}')" class="px-2.5 py-1 rounded-lg bg-paper border border-stoneBorder text-[11px] font-bold text-charcoal hover:bg-sand">Muat ke Editor</button>
+                <button type="button" onclick="deleteDosenDraft('${d.id}')" class="px-2.5 py-1 rounded-lg bg-red-100 text-red-700 text-[11px] font-bold hover:bg-red-600 hover:text-white">Hapus</button>
+              </div>
+            </div>
+          `).join("")
+        : `<div class="col-span-full text-xs text-mutedInk py-4 text-center">Belum ada arsip draft pesan tersimpan.</div>`;
+    }
+
+    function updateDosenDraftPreview() {
+      const tplEl = document.getElementById("dosen-template-select");
+      if (!tplEl) return;
+
+      const tpl = tplEl.value;
+      const greeting = document.getElementById("dosen-greeting-select").value;
+      const salutation = document.getElementById("dosen-salutation-select").value;
+      const dosenName = document.getElementById("dosen-name-input").value.trim() || `${salutation} Dosen`;
+      const course = document.getElementById("dosen-course-input").value.trim() || "Mata Kuliah terkait";
+      const timeStr = document.getElementById("dosen-time-input").value.trim() || "waktu yang Bapak/Ibu luangkan";
+      const detail = document.getElementById("dosen-detail-input").value.trim();
+
+      const studentName = state.profile.name || "Larissa";
+      const studentNim = state.profile.nim || "26/548921/SA/23410";
+      const intro = `${greeting}\n\nMohon maaf mengganggu waktu ${salutation}. Perkenalkan saya ${studentName} (NIM: ${studentNim}), mahasiswa Program Studi Antropologi Budaya, Fakultas Ilmu Budaya UGM.`;
+      const closing = `\n\nAtas perhatian dan kebijaksanaan ${salutation}, saya ucapkan terima kasih banyak.\n\nHormat saya,\n${studentName}\nNIM: ${studentNim}`;
+
+      let subject = "";
+      let bodyContent = "";
+
+      if (tpl === "bimbingan_dpa") {
+        subject = `Permohonan Bimbingan Akademik (DPA) — ${studentName}`;
+        bodyContent = `${intro}\n\nMelalui pesan ini, saya bermaksud memohon kesediaan ${salutation} ${dosenName} selaku Dosen Pembimbing Akademik untuk melaksanakan bimbingan akademik${detail ? ` terkait ${detail}` : ""}. Apakah ${salutation} berkenan meluangkan waktu pada ${timeStr}?${closing}`;
+      } else if (tpl === "izin_kuliah") {
+        subject = `Permohonan Izin Tidak Hadir Kuliah (${course}) — ${studentName}`;
+        bodyContent = `${intro}\n\nDengan ini saya memohon izin kepada ${salutation} ${dosenName} untuk tidak dapat mengikuti perkuliahan ${course} pada ${timeStr} dikarenakan ${detail || "kondisi kesehatan yang kurang memungkinkan"}. Saya berkomitmen untuk tetap mempelajari materi serta menyelesaikan tugas pada pertemuan tersebut.${closing}`;
+      } else if (tpl === "bimbingan_skripsi") {
+        subject = `Permohonan Bimbingan Proposal / Skripsi Etnografi — ${studentName}`;
+        bodyContent = `${intro}\n\nSaya bermaksud mengajukan jadwal konsultasi / bimbingan skripsi${course !== "Mata Kuliah terkait" ? ` dengan topik "${course}"` : ""}${detail ? ` (${detail})` : ""}. Kiranya kapan waktu yang luang bagi ${salutation} ${dosenName} di sekitar ${timeStr}?${closing}`;
+      } else if (tpl === "kumpul_tugas") {
+        subject = `Konfirmasi Pengumpulan Tugas ${course} — ${studentName}`;
+        bodyContent = `${intro}\n\nMelalui pesan ini, saya ingin mengonfirmasi bahwa saya telah mengumpulkan tugas mata kuliah ${course} pada ${timeStr}.${detail ? `\n\nCatatan tambahan: ${detail}` : ""}${closing}`;
+      } else if (tpl === "izin_riset") {
+        subject = `Permohonan Izin Observasi & Wawancara Etnografi — ${studentName}`;
+        bodyContent = `${intro}\n\nDalam rangka memenuhi tugas penelitian lapangan pada mata kuliah ${course}, saya bermaksud memohon izin dan arahan dari ${salutation} ${dosenName} untuk melakukan observasi serta wawancara pada ${timeStr}.${detail ? `\n\nFokus kajian: ${detail}` : ""}${closing}`;
+      } else {
+        subject = `Permohonan Surat Rekomendasi Akademik — ${studentName}`;
+        bodyContent = `${intro}\n\nSaya bermaksud memohon kesediaan ${salutation} ${dosenName} untuk memberikan rekomendasi akademik bagi saya dalam rangka ${detail || "pendaftaran program pengembangan mahasiswa / riset"}. Apabila ${salutation} berkenan, saya siap mengirimkan CV dan berkas pendukung pada ${timeStr}.${closing}`;
+      }
+
+      document.getElementById("dosen-subject-preview").textContent = subject;
+      document.getElementById("dosen-body-preview").value = bodyContent;
+    }
+
+    function copyDosenDraftText() {
+      const textarea = document.getElementById("dosen-body-preview");
+      if (!textarea) return;
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      try {
+        document.execCommand("copy");
+        showToast("Draft pesan dosen berhasil disalin ke clipboard");
+      } catch (err) {
+        showToast("Silakan salin teks secara manual dari kotak pratinjau");
+      }
+      window.getSelection()?.removeAllRanges();
+    }
+
+    function openWhatsAppWithDraft() {
+      const text = document.getElementById("dosen-body-preview")?.value || "";
+      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    function saveDosenDraftToHistory() {
+      const subject = document.getElementById("dosen-subject-preview")?.textContent || "Draft Pesan Dosen";
+      const body = document.getElementById("dosen-body-preview")?.value || "";
+      if (!body.trim()) return;
+      const today = new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+      state.savedDrafts.unshift({
+        id: "dr-" + Date.now(),
+        date: today,
+        subject,
+        body
+      });
+      saveState();
+      renderDosenDraft();
+      showToast("Draft pesan disimpan ke arsip");
+    }
+
+    function loadSavedDraftToEditor(id) {
+      const found = state.savedDrafts.find(d => d.id === id);
+      if (found) {
+        document.getElementById("dosen-subject-preview").textContent = found.subject;
+        document.getElementById("dosen-body-preview").value = found.body;
+        showToast("Draft dimuat ke editor");
+      }
+    }
+
+    function deleteDosenDraft(id) {
+      state.savedDrafts = state.savedDrafts.filter(d => d.id !== id);
+      saveState();
+      renderDosenDraft();
+    }
+
+    function renderAll() {
+      document.documentElement.setAttribute("data-theme", state.profile.theme || "neutral");
+      if (state.profile.customAccent) {
+        document.documentElement.style.setProperty("--accent-primary", state.profile.customAccent);
+      }
+      applySidebarState();
+      applyManageModeUI();
+      renderProfile();
+      renderDashboard();
+      renderCourses();
+      renderNotesAndReadings();
+      renderActivities();
+      renderKipAndAttendance();
+      renderCalendar();
+      renderLogbook();
+      renderKalkulator();
+      renderDosenDraft();
+      switchTab(state.ui.activeTab || "dashboard");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      checkPinLockOnLoad();
+      renderAll();
+      syncFromFirebase(false);
+    });
+  </script>
+</body>
+</html>
