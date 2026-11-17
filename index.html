@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="id" data-theme="neutral">
 <head>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22AnthroLens%20Companion%22%2C%22short_name%22%3A%22AnthroLens%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fbcfe8%22%2C%22theme_color%22%3A%22%23fbcfe8%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="AnthroLens" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#FBCFE8" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22AnthroLens%20Companion%22%2C%22short_name%22%3A%22AnthroLens%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FBCFE8%22%2C%22theme_color%22%3A%22%23FBCFE8%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
   <title>AnthroLens Companion — Larissa (Antropologi Budaya UGM)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1119,67 +1123,93 @@
       }
     }
 
-    function saveState() {
+    let isInitialSyncDone = false;
+    let isSyncingNow = false;
+
+    function saveState(skipCloud = false) {
       try {
+        state._updatedAt = Date.now();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        syncToFirebase();
+        if (!skipCloud) {
+          syncToFirebase();
+        }
       } catch (e) {
         console.error("Gagal menyimpan state lokal:", e);
       }
     }
 
     async function syncToFirebase() {
+      if (!isInitialSyncDone) return;
       const dot = document.getElementById("sync-dot");
       const label = document.getElementById("sync-label");
       try {
         if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
         if (label) label.textContent = "Menyimpan...";
-        await fetch(FIREBASE_DB_URL, {
+        const res = await fetch(FIREBASE_DB_URL, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(state)
         });
+        if (!res.ok) throw new Error("Firebase write blocked: " + res.status);
         if (dot) dot.className = "w-2 h-2 rounded-full bg-sage";
         if (label) label.textContent = "Firebase Sync";
       } catch (e) {
         if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
-        if (label) label.textContent = "Offline Mode";
+        if (label) label.textContent = "Offline / Rules Error";
       }
     }
 
     async function syncFromFirebase(manualNotify = false) {
+      if (isSyncingNow) return;
+      isSyncingNow = true;
       const dot = document.getElementById("sync-dot");
       const label = document.getElementById("sync-label");
       try {
         if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
-        const res = await fetch(FIREBASE_DB_URL);
-        if (!res.ok) throw new Error("Network error");
+        const res = await fetch(FIREBASE_DB_URL + "?t=" + Date.now());
+        if (!res.ok) throw new Error("Network/Rules error: " + res.status);
         const remote = await res.json();
+        const localHasData = Boolean(localStorage.getItem(STORAGE_KEY));
+        const localTs = Number(state._updatedAt || 0);
+        const remoteTs = Number((remote && remote._updatedAt) || 0);
+
         if (remote && remote.profile) {
-          state = {
-            ...defaultState,
-            ...remote,
-            profile: {
-              ...defaultState.profile,
-              ...(remote.profile || {}),
-              avatar: { ...defaultState.profile.avatar, ...((remote.profile && remote.profile.avatar) || {}) }
-            },
-            ui: { ...defaultState.ui, ...(remote.ui || {}) },
-            kip: { ...defaultState.kip, ...(remote.kip || {}) }
-          };
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          renderAll();
-          if (manualNotify) showToast("Data berhasil disinkronkan dari Firebase");
-        } else if (manualNotify) {
+          if (!localHasData || manualNotify || remoteTs >= localTs || remoteTs === 0) {
+            const currentSidebar = state.ui.sidebarOpen;
+            state = {
+              ...defaultState,
+              ...remote,
+              profile: {
+                ...defaultState.profile,
+                ...(remote.profile || {}),
+                avatar: { ...defaultState.profile.avatar, ...((remote.profile && remote.profile.avatar) || {}) }
+              },
+              ui: { ...defaultState.ui, ...(remote.ui || {}), sidebarOpen: currentSidebar },
+              kip: { ...defaultState.kip, ...(remote.kip || {}) }
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            renderAll();
+            if (manualNotify) showToast("Data berhasil disinkronkan dari Firebase");
+          } else if (localTs > remoteTs) {
+            isInitialSyncDone = true;
+            await syncToFirebase();
+            if (manualNotify) showToast("Data terbaru dari perangkat ini diunggah ke Firebase");
+          }
+        } else if (localHasData || manualNotify) {
+          isInitialSyncDone = true;
           await syncToFirebase();
-          showToast("Data lokal diunggah ke Firebase");
+          if (manualNotify) showToast("Data lokal diunggah ke Firebase");
         }
+        isInitialSyncDone = true;
         if (dot) dot.className = "w-2 h-2 rounded-full bg-sage";
         if (label) label.textContent = "Firebase Sync";
       } catch (e) {
+        isInitialSyncDone = true;
         if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
-        if (label) label.textContent = "Offline Mode";
-        if (manualNotify) showToast("Gagal terhubung ke Firebase (Mode Offline)");
+        if (label) label.textContent = "Offline / Rules Error";
+        if (manualNotify) showToast("Gagal terhubung ke Firebase (Cek Rules/Internet)");
+      } finally {
+        isSyncingNow = false;
       }
     }
 
@@ -1564,7 +1594,7 @@
       const next = typeof forceState === "boolean" ? forceState : !state.ui.sidebarOpen;
       state.ui.sidebarOpen = next;
       applySidebarState();
-      saveState();
+      saveState(true);
     }
 
     function applySidebarState() {
@@ -1622,7 +1652,7 @@
       if (window.innerWidth < 1024 && state.ui.sidebarOpen) {
         toggleSidebar(false);
       }
-      saveState();
+      saveState(true);
     }
 
     function toggleManageMode() {
@@ -3401,6 +3431,16 @@
       renderDosenDraft();
       switchTab(state.ui.activeTab || "dashboard");
     }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        syncFromFirebase(false);
+      }
+    });
+
+    window.addEventListener("focus", () => {
+      syncFromFirebase(false);
+    });
 
     window.addEventListener("DOMContentLoaded", () => {
       checkPinLockOnLoad();
