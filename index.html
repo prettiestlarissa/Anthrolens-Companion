@@ -2,16 +2,18 @@
 <html lang="id" data-theme="neutral">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>AnthroLens Companion — Larissa (Antropologi Budaya UGM)</title>
   
-  <!-- PWA Meta Tags & Web Manifest -->
+  <!-- PWA Meta Tags & Apple Touch Icon (icon.png) -->
+  <meta name="theme-color" content="#FAF8F5">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AnthroLens">
-  <!-- Set to your custom icon.png or data URI -->
-  <link rel="apple-touch-icon" id="dynamic-apple-icon" href="icon.png">
-  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" id="pwa-manifest-link">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -258,7 +260,6 @@
             class="w-8 h-8 rounded-full bg-cream hover:bg-sand border border-stoneBorder flex items-center justify-center text-mutedInk hover:text-charcoal transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
           </button>
-          <!-- FIXED: Aligned to the right side of the button -->
           <div id="theme-popover" class="hidden absolute right-0 top-full mt-2 w-48 p-3 rounded-2xl bg-paper border border-stoneBorder shadow-2xl z-50 space-y-2.5">
             <div class="text-[10px] font-mono-code font-bold uppercase text-mutedInk">Palet Warna</div>
             <div class="flex items-center gap-2">
@@ -324,23 +325,10 @@
     </div>
 
     <div class="pt-4 border-t border-stoneBorder space-y-2.5">
-      <!-- INSTALL APP BUTTON -->
-      <button type="button" id="install-pwa-btn" onclick="triggerInstallApp()" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition shadow-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-        <span>Install Aplikasi (PWA)</span>
-      </button>
-
       <button type="button" onclick="openProfileEditModal()" class="manage-only w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-terracotta/10 hover:bg-terracotta hover:text-white border border-terracotta/30 text-xs font-bold text-terracotta transition">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
         <span>Edit Profil, PIN & Avatar</span>
       </button>
-
-      <!-- CUSTOM ICON UPLOADER FOR APP -->
-      <label class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-sage/10 hover:bg-sage hover:text-white border border-sage/30 text-xs font-bold text-sage transition cursor-pointer">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <span>Upload Ikon App (ICON.jpg)</span>
-        <input type="file" accept="image/*" onchange="uploadCustomAppIcon(event)" class="hidden" />
-      </label>
 
       <div class="manage-only grid grid-cols-2 gap-1.5">
         <button type="button" onclick="exportBackupJSON()" class="px-2.5 py-2 rounded-xl bg-cream hover:bg-sand border border-stoneBorder text-[11px] font-bold text-charcoal transition">
@@ -939,33 +927,62 @@
     const STORAGE_KEY = "anthrolens_larissa_v8";
     const SESSION_UNLOCK_KEY = "anthrolens_pin_unlocked";
 
-    let deferredPrompt = null;
+    /* ==================== PWA MANIFEST & SERVICE WORKER ==================== */
+    (function setupPWA() {
+      try {
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        const manifestObj = {
+          name: "AnthroLens Companion — Larissa",
+          short_name: "AnthroLens",
+          description: "Workspace Akademik, Riset Etnografi & Dana KIP-Kuliah Antropologi Budaya FIB UGM",
+          start_url: window.location.href,
+          display: "standalone",
+          background_color: "#FAF8F5",
+          theme_color: "#FAF8F5",
+          orientation: "portrait-primary",
+          icons: [
+            {
+              src: baseUrl + "icon.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+            {
+              src: baseUrl + "icon.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable"
+            }
+          ]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: "application/manifest+json" });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const linkEl = document.getElementById("pwa-manifest-link");
+        if (linkEl) linkEl.setAttribute("href", manifestUrl);
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const btn = document.getElementById("install-pwa-btn");
-      if (btn) btn.classList.remove("hidden");
-    });
-
-    function triggerInstallApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            showToast("Aplikasi berhasil diinstal ke perangkat!");
-          }
-          deferredPrompt = null;
-        });
-      } else {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        if (isIOS) {
-          alert("Cara Install di iOS (Safari):\n1. Ketuk ikon 'Share' (Bagikan) di bagian bawah browser Safari.\n2. Gulir ke bawah dan pilih 'Add to Home Screen' (Tambah ke Layar Utama).");
-        } else {
-          alert("Aplikasi ini dapat diinstal langsung melalui menu titik tiga di browser Anda lalu pilih 'Install App' atau 'Tambahkan ke Layar Utama'.");
+        if ("serviceWorker" in navigator) {
+          const swCode = `
+            const CACHE_NAME = 'anthrolens-v1';
+            self.addEventListener('install', (event) => {
+              self.skipWaiting();
+            });
+            self.addEventListener('activate', (event) => {
+              event.waitUntil(clients.claim());
+            });
+            self.addEventListener('fetch', (event) => {
+              event.respondWith(
+                fetch(event.request).catch(() => caches.match(event.request))
+              );
+            });
+          `;
+          const swBlob = new Blob([swCode], { type: "application/javascript" });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl).catch(() => {});
         }
+      } catch (e) {
+        console.warn("PWA setup info:", e);
       }
-    }
+    })();
 
     function formatRupiah(num) {
       const n = Number(num) || 0;
@@ -996,6 +1013,7 @@
     };
 
     const defaultState = {
+      lastUpdated: 0,
       profile: {
         name: "Larissa",
         nim: "26/548921/SA/23410",
@@ -1120,32 +1138,59 @@
 
     let state = loadState();
     let modalContext = null;
-    let isSaving = false;
+    let isCloudSyncing = false;
+    let pendingLocalWrite = false;
+    let cloudSaveTimer = null;
     let syncInterval = null;
+
+    function normalizeState(raw) {
+      const parsed = raw || {};
+      const merged = {
+        ...defaultState,
+        ...parsed,
+        lastUpdated: Number(parsed.lastUpdated) || 0,
+        profile: {
+          ...defaultState.profile,
+          ...(parsed.profile || {}),
+          avatar: { ...defaultState.profile.avatar, ...((parsed.profile && parsed.profile.avatar) || {}) }
+        },
+        ui: { ...defaultState.ui, ...(parsed.ui || {}) },
+        kip: {
+          ...defaultState.kip,
+          ...(parsed.kip || {}),
+          pockets: Array.isArray(parsed.kip?.pockets) ? parsed.kip.pockets : defaultState.kip.pockets,
+          expenses: Array.isArray(parsed.kip?.expenses) ? parsed.kip.expenses : []
+        },
+        courses: Array.isArray(parsed.courses) ? parsed.courses.map(c => ({
+          ...c,
+          tasks: Array.isArray(c.tasks) ? c.tasks : []
+        })) : defaultState.courses,
+        notes: Array.isArray(parsed.notes) ? parsed.notes : defaultState.notes,
+        readings: Array.isArray(parsed.readings) ? parsed.readings : defaultState.readings,
+        activities: Array.isArray(parsed.activities) ? parsed.activities : defaultState.activities,
+        calendarLayers: Array.isArray(parsed.calendarLayers) ? parsed.calendarLayers : defaultState.calendarLayers,
+        agendas: Array.isArray(parsed.agendas) ? parsed.agendas : defaultState.agendas,
+        logbook: Array.isArray(parsed.logbook) ? parsed.logbook : defaultState.logbook,
+        simCourses: Array.isArray(parsed.simCourses) ? parsed.simCourses : defaultState.simCourses,
+        savedDrafts: Array.isArray(parsed.savedDrafts) ? parsed.savedDrafts : defaultState.savedDrafts
+      };
+      return merged;
+    }
 
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return JSON.parse(JSON.stringify(defaultState));
-        const parsed = JSON.parse(raw);
-        return {
-          ...defaultState,
-          ...parsed,
-          profile: {
-            ...defaultState.profile,
-            ...(parsed.profile || {}),
-            avatar: { ...defaultState.profile.avatar, ...((parsed.profile && parsed.profile.avatar) || {}) }
-          },
-          ui: { ...defaultState.ui, ...(parsed.ui || {}) },
-          kip: { ...defaultState.kip, ...(parsed.kip || {}) }
-        };
+        if (!raw) return normalizeState(null);
+        return normalizeState(JSON.parse(raw));
       } catch (e) {
-        return JSON.parse(JSON.stringify(defaultState));
+        return normalizeState(null);
       }
     }
 
     function saveState() {
       try {
+        state.lastUpdated = Date.now();
+        pendingLocalWrite = true;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         scheduleCloudSync();
       } catch (e) {
@@ -1154,59 +1199,76 @@
     }
 
     function scheduleCloudSync() {
-      if (isSaving) return;
-      isSaving = true;
-      setTimeout(async () => {
-        try {
-          const dot = document.getElementById("sync-dot");
-          const label = document.getElementById("sync-label");
-          if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
-          if (label) label.textContent = "Menyimpan...";
+      clearTimeout(cloudSaveTimer);
+      const dot = document.getElementById("sync-dot");
+      const label = document.getElementById("sync-label");
+      if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+      if (label) label.textContent = "Menyimpan...";
 
-          await fetch(FIREBASE_DB_URL, {
+      cloudSaveTimer = setTimeout(async () => {
+        isCloudSyncing = true;
+        try {
+          const payload = JSON.stringify(state);
+          const res = await fetch(FIREBASE_DB_URL, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(state)
+            body: payload
           });
-
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          pendingLocalWrite = false;
           if (dot) dot.className = "w-2 h-2 rounded-full bg-sage animate-pulse";
           if (label) label.textContent = "Auto-Sync Realtime";
         } catch (e) {
-          const dot = document.getElementById("sync-dot");
-          const label = document.getElementById("sync-label");
           if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
           if (label) label.textContent = "Offline Mode";
         } finally {
-          isSaving = false;
+          isCloudSyncing = false;
         }
-      }, 400);
+      }, 250);
     }
 
     async function syncFromFirebase(manualNotify = false) {
+      if (isCloudSyncing || pendingLocalWrite) return;
       const dot = document.getElementById("sync-dot");
       const label = document.getElementById("sync-label");
       try {
-        if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
-        const res = await fetch(FIREBASE_DB_URL);
+        const res = await fetch(FIREBASE_DB_URL + "?t=" + Date.now(), { cache: "no-store" });
         if (!res.ok) throw new Error("Network error");
         const remote = await res.json();
-        
-        if (remote && remote.profile && remote.courses) {
-          state = {
-            ...defaultState,
-            ...remote,
-            profile: {
-              ...defaultState.profile,
-              ...(remote.profile || {}),
-              avatar: { ...defaultState.profile.avatar, ...((remote.profile && remote.profile.avatar) || {}) }
-            },
-            ui: { ...defaultState.ui, ...(remote.ui || {}) },
-            kip: { ...defaultState.kip, ...(remote.kip || {}) }
-          };
+
+        if (!remote || !remote.profile) {
+          // Database kosong, unggah state lokal ke cloud
+          scheduleCloudSync();
+          if (manualNotify) showToast("Inisialisasi data ke cloud...");
+          return;
+        }
+
+        const remoteNorm = normalizeState(remote);
+        // Hanya timpa jika data di cloud lebih baru atau saat sinkron manual
+        if (manualNotify || remoteNorm.lastUpdated > (state.lastUpdated || 0)) {
+          const currentLocalTab = state.ui.activeTab;
+          const currentLocalSem = state.ui.activeSemester;
+          const currentManageMode = state.ui.manageMode;
+          const currentSidebar = state.ui.sidebarOpen;
+
+          state = remoteNorm;
+          // Pertahankan navigasi UI lokal perangkat masing-masing agar tidak melompat saat dipakai bersamaan
+          state.ui.activeTab = currentLocalTab;
+          state.ui.activeSemester = currentLocalSem;
+          state.ui.manageMode = currentManageMode;
+          state.ui.sidebarOpen = currentSidebar;
+
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          applyTheme(state.profile.theme || 'neutral', true);
+          if (state.profile.customAccent) {
+            document.documentElement.style.setProperty("--accent-primary", state.profile.customAccent);
+          }
           renderAll();
           if (manualNotify) showToast("Semua data berhasil disinkronkan dari cloud");
+        } else if (manualNotify) {
+          showToast("Data sudah paling mutakhir");
         }
+
         if (dot) dot.className = "w-2 h-2 rounded-full bg-sage animate-pulse";
         if (label) label.textContent = "Auto-Sync Realtime";
       } catch (e) {
@@ -1219,8 +1281,19 @@
     function startRealtimePolling() {
       if (syncInterval) clearInterval(syncInterval);
       syncInterval = setInterval(() => {
+        if (!document.hidden) {
+          syncFromFirebase(false);
+        }
+      }, 3000);
+
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          syncFromFirebase(false);
+        }
+      });
+      window.addEventListener("focus", () => {
         syncFromFirebase(false);
-      }, 5000);
+      });
     }
 
     function showToast(msg) {
@@ -1248,6 +1321,13 @@
           proofUrl
         });
       }
+    }
+
+    /* ==================== MODAL CONTROL ==================== */
+    function closeModal() {
+      const modal = document.getElementById("app-modal");
+      if (modal) modal.classList.add("hidden");
+      modalContext = null;
     }
 
     /* ==================== PIN SECURITY LOCK ==================== */
@@ -1311,27 +1391,6 @@
       showToast("Backup JSON berhasil diunduh");
     }
 
-    function uploadCustomAppIcon(e) {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const base64Data = evt.target.result;
-        state.profile.customAppIcon = base64Data;
-        saveState();
-        applyCustomAppIconToDOM(base64Data);
-        showToast("Ikon aplikasi berhasil diperbarui!");
-      };
-      reader.readAsDataURL(file);
-      e.target.value = "";
-    }
-
-    function applyCustomAppIconToDOM(iconUrl) {
-      if (!iconUrl) return;
-      const appleIcon = document.getElementById("dynamic-apple-icon");
-      if (appleIcon) appleIcon.setAttribute("href", iconUrl);
-    }
-
     function importBackupJSON(e) {
       const file = e.target.files?.[0];
       if (!file) return;
@@ -1340,13 +1399,7 @@
         try {
           const parsed = JSON.parse(evt.target.result);
           if (parsed && parsed.profile) {
-            state = {
-              ...defaultState,
-              ...parsed,
-              profile: { ...defaultState.profile, ...parsed.profile, avatar: { ...defaultState.profile.avatar, ...(parsed.profile.avatar || {}) } },
-              ui: { ...defaultState.ui, ...(parsed.ui || {}) },
-              kip: { ...defaultState.kip, ...(parsed.kip || {}) }
-            };
+            state = normalizeState(parsed);
             saveState();
             renderAll();
             showToast("Backup JSON berhasil dipulihkan");
@@ -1596,7 +1649,7 @@
       const next = typeof forceState === "boolean" ? forceState : !state.ui.sidebarOpen;
       state.ui.sidebarOpen = next;
       applySidebarState();
-      saveState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
     function applySidebarState() {
@@ -1654,13 +1707,13 @@
       if (window.innerWidth < 1024 && state.ui.sidebarOpen) {
         toggleSidebar(false);
       }
-      saveState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
     function toggleManageMode() {
       state.ui.manageMode = !state.ui.manageMode;
       applyManageModeUI();
-      saveState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       showToast(state.ui.manageMode ? "Mode Kelola diaktifkan" : "Mode Kelola disembunyikan");
     }
 
@@ -1685,14 +1738,16 @@
       document.getElementById("theme-popover").classList.toggle("hidden");
     }
 
-    function applyTheme(themeName) {
+    function applyTheme(themeName, silent = false) {
       state.profile.theme = themeName;
-      state.profile.customAccent = "";
+      if (!silent) state.profile.customAccent = "";
       document.documentElement.setAttribute("data-theme", themeName);
-      document.documentElement.style.removeProperty("--accent-primary");
-      document.getElementById("theme-popover").classList.add("hidden");
-      saveState();
-      showToast(`Tema ${themeName} diterapkan`);
+      if (!silent) {
+        document.documentElement.style.removeProperty("--accent-primary");
+        document.getElementById("theme-popover").classList.add("hidden");
+        saveState();
+        showToast(`Tema ${themeName} diterapkan`);
+      }
     }
 
     function applyCustomAccent(hex) {
@@ -1953,7 +2008,7 @@
 
     function selectSemester(sem) {
       state.ui.activeSemester = sem;
-      saveState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderCourses();
     }
 
@@ -1987,6 +2042,7 @@
         saveState();
         renderCourses();
         renderDashboard();
+        renderCalendar();
       }
     }
 
@@ -1997,6 +2053,7 @@
       saveState();
       renderCourses();
       renderDashboard();
+      renderCalendar();
     }
 
     function addQuickCourseTask(e, courseId) {
@@ -2016,6 +2073,7 @@
       saveState();
       renderCourses();
       renderDashboard();
+      renderCalendar();
       showToast("Tugas baru ditambahkan");
     }
 
@@ -2166,6 +2224,45 @@
       document.getElementById("app-modal").classList.remove("hidden");
     }
 
+    function editStickyNote(id) {
+      const n = state.notes.find(item => item.id === id);
+      if (!n) return;
+      modalContext = { type: "edit_sticky", noteId: id };
+      document.getElementById("modal-title").textContent = "Edit Sticky Note";
+      document.getElementById("modal-form").innerHTML = `
+        <div>
+          <label class="font-bold block mb-1">Judul / Topik</label>
+          <input type="text" id="sn-title" value="${n.title}" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-bold" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="font-bold block mb-1">Kode Matkul</label>
+            <input type="text" id="sn-code" value="${n.courseCode || ''}" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-bold" />
+          </div>
+          <div>
+            <label class="font-bold block mb-1">Tag</label>
+            <input type="text" id="sn-tag" value="${n.tag || ''}" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-bold" />
+          </div>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Warna Nota</label>
+          <select id="sn-color" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-bold">
+            <option value="butter" ${n.color === 'butter' ? 'selected' : ''}>Butter Cream (Kuning)</option>
+            <option value="rose" ${n.color === 'rose' ? 'selected' : ''}>Soft Rose (Pink)</option>
+            <option value="sage" ${n.color === 'sage' ? 'selected' : ''}>Sage Green (Hijau)</option>
+            <option value="sky" ${n.color === 'sky' ? 'selected' : ''}>Sky Blue (Biru)</option>
+            <option value="sand" ${n.color === 'sand' ? 'selected' : ''}>Warm Sand (Coklat)</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-bold block mb-1">Isi Catatan</label>
+          <textarea id="sn-content" rows="4" required class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder text-xs">${n.content}</textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold">Simpan Perubahan</button>
+      `;
+      document.getElementById("app-modal").classList.remove("hidden");
+    }
+
     function deleteStickyNote(id) {
       state.notes = state.notes.filter(n => n.id !== id);
       saveState();
@@ -2230,7 +2327,7 @@
               </div>
             </div>
             <div class="text-[11px] font-mono-code text-terracotta font-bold">${a.role} • ${a.period}</div>
-            <p class="text-xs text-mutedInst text-charcoal/80">${a.desc}</p>
+            <p class="text-xs text-charcoal/80">${a.desc}</p>
             <div class="flex items-center justify-between pt-2 border-t border-stoneBorder/60 text-[10px] font-mono-code">
               <span class="text-mutedInk">Status: ${a.status.toUpperCase()}</span>
               <select onchange="updateActivityStatus('${a.id}', this.value)" class="px-2 py-0.5 rounded-lg bg-paper border border-stoneBorder font-bold">
@@ -2290,6 +2387,7 @@
         if (newStatus === "selesai") addXP(50, "Organisasi", `Menyelesaikan program portofolio: ${act.name}`);
         saveState();
         renderActivities();
+        renderLogbook();
       }
     }
 
@@ -2306,7 +2404,7 @@
       document.getElementById("kip-monthly-total").textContent = formatRupiah(totalBudget);
 
       document.getElementById("kip-wallets-stack").innerHTML = state.kip.pockets.length
-        ? state.kip.pockets.map((p, idx) => {
+        ? state.kip.pockets.map((p) => {
             const alloc = Number(p.allocated) || 0;
             const pct = totalBudget > 0 ? Math.min(100, Math.round((alloc / totalBudget) * 100)) : 0;
             return `
@@ -2540,7 +2638,7 @@
         state.ui.calMonth = 11;
         state.ui.calYear--;
       }
-      saveState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderCalendar();
     }
 
@@ -2604,6 +2702,7 @@
         if (ag.done) addXP(10, "Agenda", `Menyelesaikan agenda: ${ag.title}`);
         saveState();
         renderCalendar();
+        renderDashboard();
       }
     }
 
@@ -2611,6 +2710,7 @@
       state.agendas = state.agendas.filter(a => a.id !== id);
       saveState();
       renderCalendar();
+      renderDashboard();
       showToast("Agenda dihapus");
     }
 
@@ -2636,6 +2736,7 @@
       input.value = "";
       saveState();
       renderCalendar();
+      renderDashboard();
       showToast("Todo kampus ditambahkan");
     }
 
@@ -2862,6 +2963,7 @@
     function saveSimPlanToLogbook() {
       addXP(30, "Akademik", "Menyimpan rencana simulasi studi ke logbook KIP-K");
       saveState();
+      renderLogbook();
       showToast("Rencana simulasi berhasil disimpan ke logbook");
       switchTab("logbook");
     }
@@ -2921,7 +3023,6 @@
     function copyDosenDraftText() {
       const bodyEl = document.getElementById("dosen-body-preview");
       if (!bodyEl) return;
-      document.execCommand('copy');
       navigator.clipboard?.writeText(bodyEl.value).then(() => {
         showToast("Draft pesan berhasil disalin ke clipboard");
       }).catch(() => {
@@ -3022,6 +3123,7 @@
             <div>
               <label class="font-bold block mb-1">Gaya Busana</label>
               <select id="av-outfit" class="w-full px-3 py-2 rounded-xl bg-cream border border-stoneBorder font-bold">
+                <option value="blouse_ribbon" ${av.outfitStyle === 'blouse_ribbon' ? 'selected' : ''}>Blouse Pita Manis</option>
                 <option value="almamater_ugm" ${av.outfitStyle === 'almamater_ugm' ? 'selected' : ''}>Jas Almamater UGM</option>
                 <option value="field_vest" ${av.outfitStyle === 'field_vest' ? 'selected' : ''}>Rompi Lapangan Etnografi</option>
                 <option value="cozy_sweater" ${av.outfitStyle === 'cozy_sweater' ? 'selected' : ''}>Cozy Knit Sweater</option>
@@ -3042,7 +3144,7 @@
               <option value="calm_focus" ${av.expression === 'calm_focus' ? 'selected' : ''}>Calm Focus (Fokus Riset)</option>
             </select>
           </div>
-          <div class="flex items-center gap-4 pt-1">
+          <div class="flex flex-wrap items-center gap-4 pt-1">
             <label class="flex items-center gap-2 cursor-pointer font-bold text-xs"><input type="checkbox" id="av-camera" ${av.hasCamera !== false ? 'checked' : ''} class="w-4 h-4 rounded accent-charcoal" /> Kamera Etnografi</label>
             <label class="flex items-center gap-2 cursor-pointer font-bold text-xs"><input type="checkbox" id="av-notebook" ${av.hasNotebook !== false ? 'checked' : ''} class="w-4 h-4 rounded accent-charcoal" /> Buku Catatan</label>
             <label class="flex items-center gap-2 cursor-pointer font-bold text-xs"><input type="checkbox" id="av-glasses" ${av.hasGlasses ? 'checked' : ''} class="w-4 h-4 rounded accent-charcoal" /> Kacamata</label>
@@ -3127,6 +3229,19 @@
         renderNotesAndReadings();
         closeModal();
         showToast("Sticky note ditambahkan");
+      } else if (modalContext.type === "edit_sticky") {
+        const n = state.notes.find(item => item.id === modalContext.noteId);
+        if (n) {
+          n.title = document.getElementById("sn-title").value.trim();
+          n.courseCode = document.getElementById("sn-code").value.trim();
+          n.tag = document.getElementById("sn-tag").value.trim() || "Catatan";
+          n.color = document.getElementById("sn-color").value;
+          n.content = document.getElementById("sn-content").value.trim();
+          saveState();
+          renderNotesAndReadings();
+          closeModal();
+          showToast("Sticky note diperbarui");
+        }
       } else if (modalContext.type === "add_reading") {
         state.readings.unshift({
           id: "r-" + Date.now(),
@@ -3183,18 +3298,25 @@
           showToast("Pos anggaran diperbarui");
         }
       } else if (modalContext.type === "add_expense") {
+        const noteText = document.getElementById("ex-note").value.trim();
+        const amountVal = Number(document.getElementById("ex-amount").value) || 0;
+        const pocketName = document.getElementById("ex-pocket").value;
+        const dateText = document.getElementById("ex-date").value.trim();
+
         state.kip.expenses.unshift({
           id: "ex-" + Date.now(),
-          date: document.getElementById("ex-date").value.trim(),
-          pocket: document.getElementById("ex-pocket").value,
-          note: document.getElementById("ex-note").value.trim(),
-          amount: Number(document.getElementById("ex-amount").value) || 0,
+          date: dateText,
+          pocket: pocketName,
+          note: noteText,
+          amount: amountVal,
           proofUrl: ""
         });
+        addXP(5, "KIP-K", `Pengeluaran (${pocketName}): ${noteText} (${formatRupiah(amountVal)})`);
         saveState();
         renderKip();
+        renderLogbook();
         closeModal();
-        showToast("Transaksi pengeluaran dicatat");
+        showToast("Transaksi pengeluaran dicatat & tersinkron ke logbook");
       } else if (modalContext.type === "add_agenda") {
         state.agendas.unshift({
           id: "ag-" + Date.now(),
@@ -3206,6 +3328,7 @@
         });
         saveState();
         renderCalendar();
+        renderDashboard();
         closeModal();
         showToast("Agenda ditambahkan");
       } else if (modalContext.type === "add_layer") {
@@ -3253,6 +3376,9 @@
             pomoRunning = false;
             if (btn) btn.textContent = "Mulai";
             addXP(25, "Akademik", "Menyelesaikan Sesi Pomodoro Fokus Belajar 25 Menit");
+            saveState();
+            renderProfile();
+            renderLogbook();
             showToast("Sesi Pomodoro selesai! +25 XP");
             pomoSeconds = 25 * 60;
             updatePomodoroDisplay();
@@ -3297,19 +3423,17 @@
     }
 
     window.onload = async function() {
-      applyTheme(state.profile.theme || 'neutral');
+      applyTheme(state.profile.theme || 'neutral', true);
       if (state.profile.customAccent) {
         document.documentElement.style.setProperty("--accent-primary", state.profile.customAccent);
-      }
-      if (state.profile.customAppIcon) {
-        applyCustomAppIconToDOM(state.profile.customAppIcon);
       }
       applySidebarState();
       applyManageModeUI();
       checkPinLockOnLoad();
+      switchTab(state.ui.activeTab || 'dashboard');
       
-      await syncFromFirebase(false);
       renderAll();
+      await syncFromFirebase(false);
       startRealtimePolling();
     };
   </script>
