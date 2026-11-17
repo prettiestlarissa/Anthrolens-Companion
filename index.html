@@ -9,7 +9,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AnthroLens">
-  <link rel="apple-touch-icon" href="https://placehold.co/192x192/FFD1DC/231F20?text=AL">
+  <!-- Set to your custom ICON.jpg or data URI -->
+  <link rel="apple-touch-icon" id="dynamic-apple-icon" href="ICON.jpg">
+  <link rel="manifest" href="manifest.json">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -332,6 +334,13 @@
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
         <span>Edit Profil, PIN & Avatar</span>
       </button>
+
+      <!-- CUSTOM ICON UPLOADER FOR APP -->
+      <label class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-sage/10 hover:bg-sage hover:text-white border border-sage/30 text-xs font-bold text-sage transition cursor-pointer">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span>Upload Ikon App (ICON.jpg)</span>
+        <input type="file" accept="image/*" onchange="uploadCustomAppIcon(event)" class="hidden" />
+      </label>
 
       <div class="manage-only grid grid-cols-2 gap-1.5">
         <button type="button" onclick="exportBackupJSON()" class="px-2.5 py-2 rounded-xl bg-cream hover:bg-sand border border-stoneBorder text-[11px] font-bold text-charcoal transition">
@@ -1300,6 +1309,27 @@
       a.click();
       URL.revokeObjectURL(url);
       showToast("Backup JSON berhasil diunduh");
+    }
+
+    function uploadCustomAppIcon(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const base64Data = evt.target.result;
+        state.profile.customAppIcon = base64Data;
+        saveState();
+        applyCustomAppIconToDOM(base64Data);
+        showToast("Ikon aplikasi berhasil diperbarui!");
+      };
+      reader.readAsDataURL(file);
+      e.target.value = "";
+    }
+
+    function applyCustomAppIconToDOM(iconUrl) {
+      if (!iconUrl) return;
+      const appleIcon = document.getElementById("dynamic-apple-icon");
+      if (appleIcon) appleIcon.setAttribute("href", iconUrl);
     }
 
     function importBackupJSON(e) {
@@ -3017,6 +3047,7 @@
             <label class="flex items-center gap-2 cursor-pointer font-bold text-xs"><input type="checkbox" id="av-notebook" ${av.hasNotebook !== false ? 'checked' : ''} class="w-4 h-4 rounded accent-charcoal" /> Buku Catatan</label>
             <label class="flex items-center gap-2 cursor-pointer font-bold text-xs"><input type="checkbox" id="av-glasses" ${av.hasGlasses ? 'checked' : ''} class="w-4 h-4 rounded accent-charcoal" /> Kacamata</label>
           </div>
+
           <button type="submit" class="w-full py-2.5 rounded-xl bg-charcoal text-white font-bold mt-2">Simpan Profil & Avatar</button>
         </div>
       `;
@@ -3024,11 +3055,6 @@
     }
 
     /* ==================== UNIVERSAL MODAL HANDLER ==================== */
-    function closeModal() {
-      document.getElementById("app-modal").classList.add("hidden");
-      modalContext = null;
-    }
-
     function handleModalSubmit(e) {
       e.preventDefault();
       if (!modalContext) return;
@@ -3274,6 +3300,9 @@
       applyTheme(state.profile.theme || 'neutral');
       if (state.profile.customAccent) {
         document.documentElement.style.setProperty("--accent-primary", state.profile.customAccent);
+      }
+      if (state.profile.customAppIcon) {
+        applyCustomAppIconToDOM(state.profile.customAppIcon);
       }
       applySidebarState();
       applyManageModeUI();
