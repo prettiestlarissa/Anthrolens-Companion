@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AnthroLens Companion — Larissa (Antropologi Budaya UGM)</title>
+  
+  <!-- PWA Meta Tags & Web Manifest -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AnthroLens">
+  <link rel="apple-touch-icon" href="https://placehold.co/192x192/FFD1DC/231F20?text=AL">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -315,6 +322,12 @@
     </div>
 
     <div class="pt-4 border-t border-stoneBorder space-y-2.5">
+      <!-- INSTALL APP BUTTON -->
+      <button type="button" id="install-pwa-btn" onclick="triggerInstallApp()" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-terracotta hover:bg-terracottaDark text-white text-xs font-bold transition shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <span>Install Aplikasi (PWA)</span>
+      </button>
+
       <button type="button" onclick="openProfileEditModal()" class="manage-only w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-terracotta/10 hover:bg-terracotta hover:text-white border border-terracotta/30 text-xs font-bold text-terracotta transition">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
         <span>Edit Profil, PIN & Avatar</span>
@@ -916,6 +929,34 @@
     const FIREBASE_DB_URL = "https://anthrolenscompanion-default-rtdb.asia-southeast1.firebasedatabase.app/larissa_companion.json";
     const STORAGE_KEY = "anthrolens_larissa_v8";
     const SESSION_UNLOCK_KEY = "anthrolens_pin_unlocked";
+
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById("install-pwa-btn");
+      if (btn) btn.classList.remove("hidden");
+    });
+
+    function triggerInstallApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showToast("Aplikasi berhasil diinstal ke perangkat!");
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          alert("Cara Install di iOS (Safari):\n1. Ketuk ikon 'Share' (Bagikan) di bagian bawah browser Safari.\n2. Gulir ke bawah dan pilih 'Add to Home Screen' (Tambah ke Layar Utama).");
+        } else {
+          alert("Aplikasi ini dapat diinstal langsung melalui menu titik tiga di browser Anda lalu pilih 'Install App' atau 'Tambahkan ke Layar Utama'.");
+        }
+      }
+    }
 
     function formatRupiah(num) {
       const n = Number(num) || 0;
