@@ -9,33 +9,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AnthroLens">
-  <!-- Set to your custom icon.png or data URI -->
-<!-- Script PWA Otomatis Tanpa File JSON & Support icon.png -->
-  <script>
-    const manifestData = {
-      name: "AnthroLens Companion",
-      short_name: "AnthroLens",
-      start_url: window.location.href,
-      display: "standalone",
-      background_color: "#030712",
-      theme_color: "#22c55e",
-      icons: [
-        {
-          src: "icon.png",
-          sizes: "192x192 512x512 1080x1080",
-          type: "image/png"
-        }
-      ]
-    };
-    const stringManifest = JSON.stringify(manifestData);
-    const blob = new Blob([stringManifest], {type: 'application/json'});
-    const manifestURL = URL.createObjectURL(blob);
-    
-    const link = document.createElement('link');
-    link.rel = 'manifest';
-    link.href = manifestURL;
-    document.head.appendChild(link);
-  </script>
+  <!-- Set to your custom ICON.jpg or data URI -->
+  <link rel="apple-touch-icon" id="dynamic-apple-icon" href="ICON.jpg">
+  <link rel="manifest" href="manifest.json">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
